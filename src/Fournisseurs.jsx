@@ -1,0 +1,169 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./Fournisseurs.css";
+
+export default function Fournisseurs() {
+  const apiUrl = "http://localhost:5000/fournisseurs";
+
+  const [list, setList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [editId, setEditId] = useState(null); // بدل editIndex => editId
+  const [form, setForm] = useState({
+    nom: "",
+    societe: "",
+    telephone: "",
+    email: "",
+    adresse: "",
+  });
+
+  useEffect(() => {
+    fetchFournisseurs();
+  }, []);
+
+  const fetchFournisseurs = async () => {
+    try {
+      const res = await axios.get(apiUrl);
+      setList(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur");
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    if (!form.nom || !form.societe || !form.telephone) {
+      return alert("Nom, Société et Téléphone sont obligatoires !");
+    }
+
+    try {
+      if (editId !== null) {
+        await axios.put(`${apiUrl}/${editId}`, form);
+        const newList = list.map((f) =>
+          f.id === editId ? { ...form, id: editId } : f
+        );
+        setList(newList);
+        setEditId(null);
+      } else {
+        const res = await axios.post(apiUrl, form);
+        setList([...list, { ...form, id: res.data.id }]);
+      }
+      setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur");
+    }
+  };
+
+  const handleEdit = (index) => {
+    setForm({ ...list[index] });
+    setEditId(list[index].id); // نحفظ id الصحيح
+    setShowModal(true);
+  };
+
+  const handleDelete = async (index) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer ce fournisseur ?")) return;
+    try {
+      const id = list[index].id;
+      await axios.delete(`${apiUrl}/${id}`);
+      setList(list.filter((f) => f.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur");
+    }
+  };
+
+  // fallback إذا nom أو societe undefined
+  const filteredList = list.filter(
+    (f) =>
+      (f.nom || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (f.societe || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="page">
+      <div className="header">
+        <h2>Gestion des Fournisseurs</h2>
+        <button
+          onClick={() => {
+            setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
+            setEditId(null);
+            setShowModal(true);
+          }}
+        >
+          + Add Fournisseur
+        </button>
+      </div>
+
+      <input
+        className="search"
+        placeholder="Search fournisseur..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th> {/* خانة جديدة للـ ID */}
+            <th>Nom</th>
+            <th>Société</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Adresse</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredList.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="empty">
+                Aucun fournisseur trouvé
+              </td>
+            </tr>
+          ) : (
+            filteredList.map((f, i) => (
+              <tr key={f.id}>
+                <td>{f.id}</td> {/* عرض الـ ID */}
+                <td>{f.nom}</td>
+                <td>{f.societe}</td>
+                <td>{f.telephone}</td>
+                <td>{f.email}</td>
+                <td>{f.adresse}</td>
+                <td>
+                  <button className="edit" onClick={() => handleEdit(i)}>Edit</button>
+                  <button className="delete" onClick={() => handleDelete(i)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      {showModal && (
+        <div className="overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{editId !== null ? "Edit Fournisseur" : "Add Fournisseur"}</h3>
+            <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} />
+            <input name="societe" placeholder="Société" value={form.societe} onChange={handleChange} />
+            <input name="telephone" placeholder="Téléphone" value={form.telephone} onChange={handleChange} />
+            <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
+            <input name="adresse" placeholder="Adresse" value={form.adresse} onChange={handleChange} />
+
+            <div className="modal-actions">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="save" onClick={handleSave}>
+                {editId !== null ? "Update" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,39 @@
+.top-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  gap: 8px; /* مسافة بسيطة بين الاسم والشريط وعدد المبيعات */
+}
+
+.product-name {
+  min-width: 120px;
+  max-width: 150px;
+  font-weight: bold;
+  color: #000 !important; /* هذا يضمن ظهور الاسم بالأسود */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-bar {
+  flex-grow: 1; /* الشريط ياخذ الباقي */
+  height: 12px; /* شوي أطول للشكل أفضل */
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  border-radius: 6px;
+  background-color: #7b2cbf; /* نفس لونك */
+  transition: width 0.5s ease;
+}
+
+.ventes {
+  min-width: 40px; /* مساحة كافية لعدد المبيعات */
+  font-size: 0.9rem;
+  color: #555;
+  text-align: right;
+  flex-shrink: 0; /* لا ينكمش عند الشريط */
+}
