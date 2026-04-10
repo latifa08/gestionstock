@@ -11,6 +11,8 @@ export default function Clients() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(initialForm);
 
+  // 🔥 NEW: search state
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:5000/clients")
@@ -19,8 +21,9 @@ export default function Clients() {
       .catch(err => console.error("FETCH ERROR:", err));
   }, []);
 
-
-  useEffect(() => { fetchClients(); }, []);
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
   const fetchClients = async () => {
     try {
@@ -31,7 +34,8 @@ export default function Clients() {
     }
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
     if (!form.nom.trim() || !form.telephone.trim() || !form.adresse.trim()) {
@@ -39,13 +43,13 @@ export default function Clients() {
     }
 
     try {
-      if (editId !== null) {   
+      if (editId !== null) {
         await axios.put(`${apiUrl}/${editId}`, form);
       } else {
         await axios.post(apiUrl, form);
       }
 
-      await fetchClients(); 
+      await fetchClients();
       setForm(initialForm);
       setEditId(null);
       setShowModal(false);
@@ -71,37 +75,86 @@ export default function Clients() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Supprimer ce client ?")) return;
-    try { await axios.delete(`${apiUrl}/${id}`); fetchClients(); } 
-    catch (err) { console.error(err); alert("Erreur suppression"); }
+
+    try {
+      await axios.delete(`${apiUrl}/${id}`);
+      fetchClients();
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  // 🔥 NEW: filter list
+  const filteredList = list.filter(
+    (c) =>
+      (c.nom || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.telephone || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="page">
       <div className="header">
         <h2>Gestion des Clients</h2>
-        <button type="button" onClick={() => { setForm(initialForm); setEditId(null); setShowModal(true); }}>
+        <button
+          type="button"
+          onClick={() => {
+            setForm(initialForm);
+            setEditId(null);
+            setShowModal(true);
+          }}
+        >
           + Add Client
         </button>
       </div>
 
+      {/* 🔥 SEARCH (UNDER TITLE ONLY LIKE FOURNISSEUR) */}
+      <input
+        className="search"
+        placeholder="Search client..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       <table>
         <thead>
           <tr>
-            <th>ID</th><th>Nom</th><th>Téléphone</th><th>Adresse</th><th>Email</th><th>Type</th><th>Actions</th>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Téléphone</th>
+            <th>Adresse</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
-          {list.length === 0 ? <tr><td colSpan="7">No clients yet</td></tr> :
-            list.map((c) => (
+          {filteredList.length === 0 ? (
+            <tr>
+              <td colSpan="7">No clients yet</td>
+            </tr>
+          ) : (
+            filteredList.map((c) => (
               <tr key={c.id_client}>
-                <td>{c.id_client}</td><td>{c.nom}</td><td>{c.telephone}</td><td>{c.adresse}</td><td>{c.email}</td><td>{c.type}</td>
+                <td>{c.id_client}</td>
+                <td>{c.nom}</td>
+                <td>{c.telephone}</td>
+                <td>{c.adresse}</td>
+                <td>{c.email}</td>
+                <td>{c.type}</td>
+
                 <td>
-                  <button type="button" onClick={() => handleEdit(c)}>Edit</button>
-                  <button type="button" onClick={() => handleDelete(c.id_client)}>Delete</button>
+                  <button type="button" className="edit" onClick={() => handleEdit(c)}>
+                    edit
+                  </button>
+
+                  <button type="button" className="delete" onClick={() => handleDelete(c.id_client)}>
+                    delete
+                  </button>
                 </td>
               </tr>
             ))
-          }
+          )}
         </tbody>
       </table>
 
@@ -109,6 +162,7 @@ export default function Clients() {
         <div className="overlay">
           <div className="modal">
             <h3>{editId ? "Edit Client" : "Add Client"}</h3>
+
             <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} />
             <input name="telephone" placeholder="Telephone" value={form.telephone} onChange={handleChange} />
             <input name="adresse" placeholder="Adresse" value={form.adresse} onChange={handleChange} />
@@ -116,8 +170,12 @@ export default function Clients() {
             <input name="type" placeholder="Type Client" value={form.type} onChange={handleChange} />
 
             <div className="modal-actions">
-              <button type="button" onClick={() => setShowModal(false)}>Cancel</button>
-              <button type="button" onClick={handleSave}>{editId ? "Update" : "Save"}</button>
+              <button type="button" onClick={() => setShowModal(false)}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave}>
+                {editId ? "Update" : "Save"}
+              </button>
             </div>
           </div>
         </div>

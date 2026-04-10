@@ -5,24 +5,37 @@ import "./MouvementPage.css";
 const MouvementPage = () => {
   const [produits, setProduits] = useState([]);
   const [mouvements, setMouvements] = useState([]);
-  const [nouveauProduit, setNouveauProduit] = useState({ nom: "", quantite: "" });
+  const [clients, setClients] = useState([]);
+  const [fournisseurs, setFournisseurs] = useState([]);
+
+  const [nouveauProduit, setNouveauProduit] = useState({
+    nom: "",
+    quantite: "",
+    client_id: "",
+    fournisseur_id: "",
+  });
+
   const [recherche, setRecherche] = useState("");
 
   const API_PRODUITS = "http://localhost:5000/products";
   const API_MOUVEMENTS = "http://localhost:5000/mouvements";
+  const API_CLIENTS = "http://localhost:5000/clients";
+  const API_FOURNISSEURS = "http://localhost:5000/fournisseurs";
 
   useEffect(() => {
     fetchProduits();
     fetchMouvements();
+    fetchClients();
+    fetchFournisseurs();
   }, []);
 
+  // ================= FETCH =================
   const fetchProduits = async () => {
     try {
       const res = await axios.get(API_PRODUITS);
       setProduits(res.data);
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur produits");
     }
   };
 
@@ -32,23 +45,46 @@ const MouvementPage = () => {
       setMouvements(res.data);
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur mouvements");
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNouveauProduit({ ...nouveauProduit, [name]: value });
+  const fetchClients = async () => {
+    try {
+      const res = await axios.get(API_CLIENTS);
+      setClients(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // ✅ Ajouter Produit + Mouvement ENTREE
+  const fetchFournisseurs = async () => {
+    try {
+      const res = await axios.get(API_FOURNISSEURS);
+      setFournisseurs(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ================= INPUT =================
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNouveauProduit((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // ================= AJOUT =================
   const ajouterProduit = async () => {
-    if (!nouveauProduit.nom || !nouveauProduit.quantite) return alert("Nom et quantité requis");
-    const qte = parseInt(nouveauProduit.quantite);
-    if (isNaN(qte) || qte <= 0) return alert("Quantité invalide");
+    if (!nouveauProduit.nom || !nouveauProduit.quantite)
+      return alert("Nom et quantité requis");
+
+    const qte = Number(nouveauProduit.quantite);
+    if (qte <= 0 || isNaN(qte))
+      return alert("Quantité invalide");
 
     try {
-      // 1. Ajouter produit
       const res = await axios.post(API_PRODUITS, {
         nom_produit: nouveauProduit.nom,
         categorie: "General",
@@ -57,70 +93,82 @@ const MouvementPage = () => {
         prix_unitaire: 0,
         fournisseur: "",
         date_ajout: new Date(),
-        niveau_alerte: 0
+        niveau_alerte: 0,
       });
 
-      // 2. Ajouter mouvement ENTREE
+      // 🔥 fournisseur = من المنتج (مش من input)
+      const produit = produits.find(
+        (p) => p.nom_produit === nouveauProduit.nom
+      );
+
       await axios.post(API_MOUVEMENTS, {
-        id_produit: res.data.id,
+        id_produit: res.data.id_produit || res.data.id,
         type: "ENTREE",
-        quantite: qte
+        quantite: qte,
+        id_client: nouveauProduit.client_id || null,
+        id_fournisseur: produit?.fournisseur_id || null,
       });
 
       fetchProduits();
       fetchMouvements();
-      setNouveauProduit({ nom: "", quantite: "" });
+
+      setNouveauProduit({
+        nom: "",
+        quantite: "",
+        client_id: "",
+        fournisseur_id: "",
+      });
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur lors de l'ajout");
+      alert("Erreur ajout produit");
     }
   };
 
-  // ✅ Retirer Produit + Mouvement SORTIE
+  // ================= RETRAIT =================
   const retirerProduit = async (id, stockActuel) => {
     let qte = prompt("Quantité à retirer :");
-    qte = parseInt(qte);
-    if (!qte || isNaN(qte) || qte <= 0) return;
-    if (qte > stockActuel) return alert("Quantité supérieure au stock disponible");
+    qte = Number(qte);
+
+    if (isNaN(qte) || qte <= 0)
+      return alert("Quantité invalide");
+
+    if (qte > stockActuel)
+      return alert("Stock insuffisant");
 
     try {
-      // 1. Mettre à jour le produit
-      const produit = produits.find(p => p.id_produit === id);
+      const produit = produits.find((p) => p.id_produit === id);
+
       await axios.put(`${API_PRODUITS}/${id}`, {
-        nom_produit: produit.nom_produit,
-        categorie: produit.categorie,
-        description: produit.description,
+        ...produit,
         quantite: produit.quantite - qte,
-        prix_unitaire: produit.prix_unitaire,
-        fournisseur: produit.fournisseur,
-        date_ajout: produit.date_ajout,
-        niveau_alerte: produit.niveau_alerte
       });
 
-      // 2. Ajouter mouvement SORTIE
       await axios.post(API_MOUVEMENTS, {
         id_produit: id,
         type: "SORTIE",
-        quantite: qte
+        quantite: qte,
+        id_client: nouveauProduit.client_id || null,
+        id_fournisseur: produit?.fournisseur_id || null,
       });
 
       fetchProduits();
       fetchMouvements();
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur lors du retrait");
+      alert("Erreur retrait produit");
     }
   };
 
-  const produitsFiltres = produits.filter(p =>
+  const produitsFiltres = produits.filter((p) =>
     p.nom_produit?.toLowerCase().includes(recherche.toLowerCase())
   );
 
+  // ================= UI =================
   return (
     <div className="mouvement-page">
       <h2>Page Mouvement</h2>
 
-      {/* Formulaire */}
+      {/* FORM (نفس التصميم) */}
       <div className="form-ajout">
         <input
           type="text"
@@ -129,6 +177,7 @@ const MouvementPage = () => {
           value={nouveauProduit.nom}
           onChange={handleChange}
         />
+
         <input
           type="number"
           name="quantite"
@@ -136,31 +185,50 @@ const MouvementPage = () => {
           value={nouveauProduit.quantite}
           onChange={handleChange}
         />
-        <button onClick={ajouterProduit}>Ajouter / Réception</button>
+
+        {/* 🔥 CLIENT SELECT */}
+        <select
+          name="client_id"
+          value={nouveauProduit.client_id}
+          onChange={handleChange}
+        >
+          <option value="">Client (optionnel)</option>
+          {clients.map((c) => (
+            <option key={c.id_client} value={c.id_client}>
+              {c.nom}
+            </option>
+          ))}
+        </select>
+
+        <button onClick={ajouterProduit}>
+          Ajouter 
+        </button>
       </div>
 
+      {/* SEARCH */}
       <input
         type="text"
-        placeholder="Rechercher un produit..."
+        placeholder="Rechercher..."
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
       />
 
-      {/* Produits */}
-      <h3>Produits en stock</h3>
+      {/* PRODUITS (نفسه) */}
+      <h3>Produits</h3>
       <table className="mouvement-table">
         <thead>
           <tr>
-            <th>ID Produit</th>
+            <th>ID</th>
             <th>Nom</th>
             <th>Quantité</th>
             <th>Action</th>
           </tr>
         </thead>
+
         <tbody>
           {produitsFiltres.length === 0 ? (
             <tr>
-              <td colSpan="4" className="empty-row">Aucun produit trouvé</td>
+              <td colSpan="4">Aucun produit</td>
             </tr>
           ) : (
             produitsFiltres.map((p) => (
@@ -169,7 +237,11 @@ const MouvementPage = () => {
                 <td>{p.nom_produit}</td>
                 <td>{p.quantite}</td>
                 <td>
-                  <button onClick={() => retirerProduit(p.id_produit, p.quantite)}>
+                  <button
+                    onClick={() =>
+                      retirerProduit(p.id_produit, p.quantite)
+                    }
+                  >
                     Retirer
                   </button>
                 </td>
@@ -179,35 +251,40 @@ const MouvementPage = () => {
         </tbody>
       </table>
 
-      {/* Historique */}
-      <h3>Historique des mouvements (lecture seule)</h3>
+      {/* HISTORIQUE (نفسه) */}
+      <h3>Historique</h3>
       <table className="mouvement-table">
         <thead>
           <tr>
-            <th>ID Mouvement</th>
+            <th>ID</th>
             <th>Produit</th>
-            <th>Client</th>
-            <th>Fournisseur</th>
             <th>Type</th>
             <th>Quantité</th>
+            <th>Client</th>
+            <th>Fournisseur</th>
             <th>Date</th>
           </tr>
         </thead>
+
         <tbody>
           {mouvements.length === 0 ? (
             <tr>
-              <td colSpan="7" className="empty-row">Aucun mouvement enregistré</td>
+              <td colSpan="7">Aucun mouvement</td>
             </tr>
           ) : (
             mouvements.map((m) => (
               <tr key={m.id_mouvement}>
                 <td>{m.id_mouvement}</td>
-                <td>{m.produit || "-"}</td>
-                <td>{m.client || "-"}</td>
-                <td>{m.fournisseur || "-"}</td>
+                <td>{m.nom_produit || m.id_produit}</td>
                 <td>{m.type}</td>
                 <td>{m.quantite}</td>
-                <td>{new Date(m.date).toLocaleString()}</td>
+                <td>{m.nom_client || "-"}</td>
+                <td>{m.nom_fournisseur || "-"}</td>
+                <td>
+                  {m.date
+                    ? new Date(m.date).toLocaleString()
+                    : "-"}
+                </td>
               </tr>
             ))
           )}

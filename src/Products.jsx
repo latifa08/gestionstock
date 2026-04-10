@@ -12,8 +12,9 @@ export default function Products() {
     quantite: 0,
     prix_unitaire: 0,
     fournisseur: "",
-    date_ajout: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    date_ajout: new Date().toISOString().split("T")[0],
     niveau_alerte: 0,
+    code_bar: "",
   };
 
   const [list, setList] = useState([]);
@@ -39,6 +40,7 @@ export default function Products() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setForm({
       ...form,
       [name]: ["quantite", "prix_unitaire", "niveau_alerte"].includes(name)
@@ -56,11 +58,17 @@ export default function Products() {
     }
 
     try {
+      const dataToSend = {
+        ...form,
+        code_bar: form.code_bar || Date.now().toString(),
+      };
+
       if (editId) {
-        await axios.put(`${apiUrl}/${editId}`, form);
+        await axios.put(`${apiUrl}/${editId}`, dataToSend);
       } else {
-        await axios.post(apiUrl, form);
+        await axios.post(apiUrl, dataToSend);
       }
+
       setForm(initialForm);
       setEditId(null);
       setShowModal(false);
@@ -73,10 +81,11 @@ export default function Products() {
 
   const handleEdit = (product) => {
     const { id_produit, ...rest } = product;
-    // format date correctement
+
     if (rest.date_ajout) {
       rest.date_ajout = rest.date_ajout.split("T")[0];
     }
+
     setForm(rest);
     setEditId(id_produit);
     setShowModal(true);
@@ -85,14 +94,10 @@ export default function Products() {
 
   const handleDelete = async (id) => {
     try {
-      if (!window.confirm("Voulez-vous vraiment supprimer ce produit ?")) return;
+      if (!window.confirm("Voulez-vous vraiment supprimer ce produit ?"))
+        return;
 
-      // حذف المنتج
       await axios.delete(`${apiUrl}/${id}`);
-
-      // إذا تحب، ممكن تحذف كل الموفمنت المرتبط بهذا المنتج:
-      // await axios.delete(`http://localhost:5000/mouvements/product/${id}`);
-
       fetchProducts();
     } catch (err) {
       console.error("Erreur delete produit:", err);
@@ -108,6 +113,7 @@ export default function Products() {
     <div className="page">
       <div className="header">
         <h2>Gestion des Produits</h2>
+
         <button
           onClick={() => {
             setForm(initialForm);
@@ -116,7 +122,7 @@ export default function Products() {
             setErrorMessage("");
           }}
         >
-          + Add Produit
+          + Add produit
         </button>
       </div>
 
@@ -126,18 +132,28 @@ export default function Products() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
       <table>
         <thead>
           <tr>
-            <th>ID</th><th>Nom</th><th>Catégorie</th><th>Description</th>
-            <th>Quantité</th><th>Prix</th><th>Fournisseur</th><th>Date</th>
-            <th>Niveau Alerte</th><th>Actions</th>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Catégorie</th>
+            <th>Description</th>
+            <th>Quantité</th>
+            <th>Prix</th>
+            <th>Fournisseur</th>
+            <th>Date</th>
+            <th>Niveau Alerte</th>
+            <th>Barcode</th>
+            <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {filteredList.length === 0 ? (
-            <tr><td colSpan="10">Aucun produit trouvé</td></tr>
+            <tr>
+              <td colSpan="11">Aucun produit trouvé</td>
+            </tr>
           ) : (
             filteredList.map((p) => (
               <tr key={p.id_produit}>
@@ -150,9 +166,18 @@ export default function Products() {
                 <td>{p.fournisseur}</td>
                 <td>{p.date_ajout?.split("T")[0]}</td>
                 <td>{p.niveau_alerte}</td>
+                <td>{p.code_bar}</td>
+
                 <td>
-                  <button className="edit" onClick={() => handleEdit(p)}>Edit</button>
-                  <button className="delete" onClick={() => handleDelete(p.id_produit)}>Delete</button>
+                  <button className="edit" onClick={() => handleEdit(p)}>
+                    edit
+                  </button>
+                  <button
+                    className="delete"
+                    onClick={() => handleDelete(p.id_produit)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))
@@ -183,7 +208,7 @@ export default function Products() {
             ))}
 
             {errorMessage && (
-              <div className="form-error" style={{ color: "red", marginTop: "5px" }}>
+              <div style={{ color: "red" }}>
                 <pre>{errorMessage}</pre>
               </div>
             )}

@@ -8,7 +8,8 @@ export default function Fournisseurs() {
   const [list, setList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [editId, setEditId] = useState(null); // بدل editIndex => editId
+  const [editId, setEditId] = useState(null);
+
   const [form, setForm] = useState({
     nom: "",
     societe: "",
@@ -43,16 +44,28 @@ export default function Fournisseurs() {
     try {
       if (editId !== null) {
         await axios.put(`${apiUrl}/${editId}`, form);
-        const newList = list.map((f) =>
-          f.id === editId ? { ...form, id: editId } : f
+
+        setList((prev) =>
+          prev.map((f) =>
+            f.id === editId ? { ...form, id: editId } : f
+          )
         );
-        setList(newList);
+
         setEditId(null);
       } else {
         const res = await axios.post(apiUrl, form);
+
         setList([...list, { ...form, id: res.data.id }]);
       }
-      setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
+
+      setForm({
+        nom: "",
+        societe: "",
+        telephone: "",
+        email: "",
+        adresse: "",
+      });
+
       setShowModal(false);
     } catch (err) {
       console.error(err);
@@ -60,16 +73,19 @@ export default function Fournisseurs() {
     }
   };
 
-  const handleEdit = (index) => {
-    setForm({ ...list[index] });
-    setEditId(list[index].id); // نحفظ id الصحيح
+  // ✅ FIX فقط: استعمل id بدل index
+  const handleEdit = (id) => {
+    const item = list.find((f) => f.id === id);
+    setForm(item);
+    setEditId(id);
     setShowModal(true);
   };
 
-  const handleDelete = async (index) => {
-    if (!window.confirm("Voulez-vous vraiment supprimer ce fournisseur ?")) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer ce fournisseur ?"))
+      return;
+
     try {
-      const id = list[index].id;
       await axios.delete(`${apiUrl}/${id}`);
       setList(list.filter((f) => f.id !== id));
     } catch (err) {
@@ -78,7 +94,6 @@ export default function Fournisseurs() {
     }
   };
 
-  // fallback إذا nom أو societe undefined
   const filteredList = list.filter(
     (f) =>
       (f.nom || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,7 +106,13 @@ export default function Fournisseurs() {
         <h2>Gestion des Fournisseurs</h2>
         <button
           onClick={() => {
-            setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
+            setForm({
+              nom: "",
+              societe: "",
+              telephone: "",
+              email: "",
+              adresse: "",
+            });
             setEditId(null);
             setShowModal(true);
           }}
@@ -110,7 +131,7 @@ export default function Fournisseurs() {
       <table>
         <thead>
           <tr>
-            <th>ID</th> {/* خانة جديدة للـ ID */}
+            <th>ID</th>
             <th>Nom</th>
             <th>Société</th>
             <th>Téléphone</th>
@@ -119,6 +140,7 @@ export default function Fournisseurs() {
             <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {filteredList.length === 0 ? (
             <tr>
@@ -127,17 +149,25 @@ export default function Fournisseurs() {
               </td>
             </tr>
           ) : (
-            filteredList.map((f, i) => (
+            filteredList.map((f) => (
               <tr key={f.id}>
-                <td>{f.id}</td> {/* عرض الـ ID */}
+                <td>{f.id}</td>
                 <td>{f.nom}</td>
                 <td>{f.societe}</td>
                 <td>{f.telephone}</td>
                 <td>{f.email}</td>
                 <td>{f.adresse}</td>
+
                 <td>
-                  <button className="edit" onClick={() => handleEdit(i)}>Edit</button>
-                  <button className="delete" onClick={() => handleDelete(i)}>Delete</button>
+                  <button className="edit" onClick={() => handleEdit(f.id)}>
+                    edit
+                  </button>
+                  <button
+                    className="delete"
+                    onClick={() => handleDelete(f.id)}
+                  >
+                    delete
+                  </button>
                 </td>
               </tr>
             ))
@@ -149,6 +179,7 @@ export default function Fournisseurs() {
         <div className="overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>{editId !== null ? "Edit Fournisseur" : "Add Fournisseur"}</h3>
+
             <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} />
             <input name="societe" placeholder="Société" value={form.societe} onChange={handleChange} />
             <input name="telephone" placeholder="Téléphone" value={form.telephone} onChange={handleChange} />

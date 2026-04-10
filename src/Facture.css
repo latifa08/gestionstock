@@ -1,54 +1,161 @@
-.facture {
+.facture-container {
   padding: 30px;
-  background: #f5f2fa;
+  background: linear-gradient(135deg, #f5f2fa, #ffffff);
   min-height: 100vh;
   font-family: "Segoe UI", sans-serif;
 }
 
-h1 {
+/* ===== TITLE ===== */
+.title {
+  font-size: 28px;
+  font-weight: bold;
   color: #5a189a;
-}
-
-.info {
   margin-bottom: 20px;
 }
 
-.table {
-  width: 100%;
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  background: #e9d8fd;
+  color: #5a189a;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.tabs button:hover {
+  transform: translateY(-2px);
+  background: #d0bfff;
+}
+
+/* active tab */
+.tabs .active-tab {
+  background: linear-gradient(90deg, #7b2cbf, #5a189a);
+  color: white;
+  box-shadow: 0 5px 12px rgba(90, 24, 154, 0.3);
+}
+
+/* ===== CARD ===== */
+.card {
   background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+
+/* ===== INPUTS ===== */
+select,
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 12px;
+  outline: none;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+select:focus,
+input:focus {
+  border-color: #7b2cbf;
+  box-shadow: 0 0 8px rgba(123, 44, 191, 0.25);
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 20px;
 }
 
-.table th {
-  background: #7b2cbf;
+th {
+  background: linear-gradient(90deg, #7b2cbf, #5a189a);
   color: white;
-  padding: 10px;
+  padding: 12px;
 }
 
-.table td {
-  padding: 10px;
+td {
+  padding: 12px;
   text-align: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f1f1f1;
 }
 
+tr:hover {
+  background: #f8f4ff;
+}
+
+/* ===== TOTAL ===== */
 .total {
   text-align: right;
   color: #5a189a;
+  font-size: 20px;
+  margin-top: 15px;
+  font-weight: bold;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+/* ===== MAIN BUTTON ===== */
+.btn {
+  margin-top: 15px;
+  padding: 12px 18px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(90deg, #7b2cbf, #5a189a);
+  transition: 0.3s;
+  font-weight: 500;
 }
 
-.actions button {
-  padding: 8px 18px;
-  border-radius: 20px;
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(90, 24, 154, 0.3);
+}
+
+/* ===== SMALL BUTTONS ===== */
+button:not(.btn) {
+  padding: 6px 12px;
+  border-radius: 15px;
   border: none;
   background: #7b2cbf;
   color: white;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+button:not(.btn):hover {
+  background: #5a189a;
+  transform: translateY(-2px);
+}
+
+/* ===== DELETE BUTTON ===== */
+.btn-delete {
+  background: #e63946 !important;
+}
+
+.btn-delete:hover {
+  background: #c1121f !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .facture-container {
+    padding: 15px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+  }
 }

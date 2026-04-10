@@ -15,34 +15,38 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 🔐 إذا راهو داخل يرجعو حسب role
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (user) {
-      redirectByRole(user.role);
-    }
-  }, []);
-
-  // 🚀 redirect صحيح حسب App.js routes
+  // 🚀 redirect by role
   const redirectByRole = (role) => {
     switch (role) {
       case "admin":
         navigate("/admin");
         break;
-
       case "magasinier":
         navigate("/products");
         break;
-
       case "responsable":
         navigate("/dashboard");
         break;
-
       default:
         navigate("/login");
     }
   };
+
+  // 🔐 auto login (FIX JSON.parse error)
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser || storedUser === "undefined") return;
+
+    try {
+      const user = JSON.parse(storedUser);
+      if (user?.role) {
+        redirectByRole(user.role);
+      }
+    } catch (err) {
+      localStorage.removeItem("user");
+    }
+  }, []);
 
   // 🔐 LOGIN
   const handleLogin = async (e) => {
@@ -64,16 +68,13 @@ function Login() {
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message);
+        setError(data.message || "Login failed");
         return;
       }
 
-      // 💾 save user
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // 🚀 redirect
       redirectByRole(data.user.role);
-
     } catch (err) {
       setError("خطأ في الاتصال بالسيرفر");
     }
@@ -99,14 +100,20 @@ function Login() {
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message);
+        setError(data.message || "Register failed");
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // register يرجع id فقط
+      const newUser = {
+        id: data.id,
+        email,
+        role,
+      };
 
-      redirectByRole(data.user.role);
+      localStorage.setItem("user", JSON.stringify(newUser));
 
+      redirectByRole(role);
     } catch (err) {
       setError("خطأ في الاتصال بالسيرفر");
     }
@@ -122,7 +129,6 @@ function Login() {
       }}
     >
       <div className="login-box">
-
         {/* LEFT */}
         <div className="login-brand">
           <h2>Gestion de Stock</h2>
@@ -187,7 +193,6 @@ function Login() {
               {isRegister ? " Se connecter" : " Créer un compte"}
             </span>
           </p>
-
         </div>
       </div>
     </div>

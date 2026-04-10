@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 import Dashboard from "./Dashboard";
 import Admin from "./Admin";
@@ -19,7 +24,9 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import "./App.css";
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
@@ -31,7 +38,7 @@ function App() {
   }, [darkMode]);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    setDarkMode((prev) => !prev);
   };
 
   const stockData = [
@@ -41,123 +48,143 @@ function App() {
     { produit: "PC", stock: 0 },
   ];
 
+  const hideLayout =
+    location.pathname === "/login" || location.pathname === "/";
+
   return (
-    <Router>
-      <div className="app-container">
-        <Sidebar darkMode={darkMode} />
+    <div className="app-container">
 
-        <div className="main-area">
-          <Navbar toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      {!hideLayout && <Sidebar darkMode={darkMode} />}
 
-          <div className="content">
-            <Routes>
+      <div className="main-area">
 
-              {/* 🔓 LOGIN */}
-              <Route path="/login" element={<Login />} />
+        {!hideLayout && (
+          <Navbar
+            toggleDarkMode={toggleDarkMode}
+            darkMode={darkMode}
+          />
+        )}
 
-              {/* 👑 ADMIN فقط */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <Admin />
-                  </ProtectedRoute>
-                }
-              />
+        <div className="content">
 
-              <Route
-                path="/clients"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <Clients />
-                  </ProtectedRoute>
-                }
-              />
+          <Routes>
 
-              <Route
-                path="/fournisseurs"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <Fournisseurs />
-                  </ProtectedRoute>
-                }
-              />
+            <Route path="/login" element={<Login />} />
 
-              {/* 📦 MAGASINIER + ADMIN */}
-              <Route
-                path="/products"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
-                    <Products />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 👑 ADMIN = كلشي */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/mouvement"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
-                    <MouvementPage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 👥 CLIENTS */}
+            <Route
+              path="/clients"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable"]}>
+                  <Clients />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/barcode"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
-                    <BarcodePage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🚚 FOURNISSEURS */}
+            <Route
+              path="/fournisseurs"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable"]}>
+                  <Fournisseurs />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 📊 RESPONSABLE + ADMIN */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "responsable"]}>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 📦 PRODUCTS */}
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
+                  <Products />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/rapportstock"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "responsable"]}>
-                    <RapportStock />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🔄 MOUVEMENT */}
+            <Route
+              path="/mouvement"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
+                  <MouvementPage />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/stockalert"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "responsable"]}>
-                    <StockAlert stockData={stockData} />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🖨 BARCODE */}
+            <Route
+              path="/barcode"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "magasinier"]}>
+                  <BarcodePage />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 💰 كامل يشوفوها */}
-              <Route
-                path="/facture"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "magasinier", "responsable"]}>
-                    <Facture />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 📊 DASHBOARD */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* ❌ أي route غلط */}
-              <Route path="*" element={<Login />} />
+            {/* 📊 REPORTS */}
+            <Route
+              path="/rapportstock"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable"]}>
+                  <RapportStock />
+                </ProtectedRoute>
+              }
+            />
 
-            </Routes>
-          </div>
+            {/* ⚠️ STOCK ALERT */}
+            <Route
+              path="/stockalert"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable", "magasinier"]}>
+                  <StockAlert stockData={stockData} />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 📄 FACTURE */}
+            <Route
+              path="/facture"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "responsable", "magasinier"]}>
+                  <Facture />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="*" element={<Login />} />
+
+          </Routes>
+
         </div>
       </div>
-    </Router>
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}

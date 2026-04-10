@@ -203,3 +203,14 @@ tr:hover {
 .modal-actions button.cancel:hover {
   background: #b91c1c;
 }
+td button.edit {
+  background: #22c55e !important;
+  color: white !important;
+  border: none;
+}
+
+td button.delete {
+  background: #ef4444 !important;
+  color: white !important;
+  border: none;
+}

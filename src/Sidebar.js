@@ -1,101 +1,61 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 
 export default function Sidebar({ darkMode }) {
+  const location = useLocation();
+
+  // ❌ ما نعرضوش في login
+  if (location.pathname === "/login") return null;
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.role;
+
   return (
     <div className={`sidebar ${darkMode ? "dark-mode" : ""}`}>
       <h2 className="logo">SysStock</h2>
 
       <ul>
-        <li>
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            🏠 Dashboard
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/admin"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            👑 Admin
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/clients"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            👥 Clients
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/fournisseurs"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            🚚 Fournisseurs
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/products"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            📦 Produits
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/mouvement"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            🔄 Mouvement
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/facture"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            📄 Facture
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/stockalert"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            ⚠️ Stock Alert
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/barcode"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            🖨 Barcode
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/rapportstock"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            📊 Rapport Stock
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/login"
-            className={({ isActive }) => (isActive ? "link active" : "link")}
-          >
-            🔑 Login
-          </NavLink>
-        </li>
+
+        {/* 👑 ADMIN = كلشي */}
+        {role === "admin" && (
+          <>
+            <li><NavLink to="/dashboard" className="link">🏠 Dashboard</NavLink></li>
+            <li><NavLink to="/admin" className="link">👑 Admin</NavLink></li>
+            <li><NavLink to="/clients" className="link">👥 Clients</NavLink></li>
+            <li><NavLink to="/fournisseurs" className="link">🚚 Fournisseurs</NavLink></li>
+            <li><NavLink to="/products" className="link">📦 Produits</NavLink></li>
+            <li><NavLink to="/mouvement" className="link">🔄 Mouvement</NavLink></li>
+            <li><NavLink to="/facture" className="link">📄 Facture</NavLink></li>
+            <li><NavLink to="/stockalert" className="link">⚠️ Stock Alert</NavLink></li>
+            <li><NavLink to="/barcode" className="link">🖨 Barcode</NavLink></li>
+            <li><NavLink to="/rapportstock" className="link">📊 Rapport Stock</NavLink></li>
+          </>
+        )}
+
+        {/* 👨‍💼 RESPONSABLE */}
+        {role === "responsable" && (
+          <>
+            <li><NavLink to="/dashboard" className="link">🏠 Dashboard</NavLink></li>
+            <li><NavLink to="/rapportstock" className="link">📊 Rapport Stock</NavLink></li>
+            <li><NavLink to="/stockalert" className="link">⚠️ Stock Alert</NavLink></li>
+            <li><NavLink to="/clients" className="link">👥 Clients</NavLink></li>
+            <li><NavLink to="/fournisseurs" className="link">🚚 Fournisseurs</NavLink></li>
+            <li><NavLink to="/facture" className="link">📄 Facture</NavLink></li>
+          </>
+        )}
+
+        {/* 🏭 MAGASINIER */}
+        {role === "magasinier" && (
+          <>
+            <li><NavLink to="/products" className="link">📦 Produits</NavLink></li>
+            <li><NavLink to="/mouvement" className="link">🔄 Mouvement</NavLink></li>
+            <li><NavLink to="/facture" className="link">📄 Facture</NavLink></li>
+            <li><NavLink to="/stockalert" className="link">⚠️ Stock Alert</NavLink></li>
+            <li><NavLink to="/barcode" className="link">🖨 Barcode</NavLink></li>
+          </>
+        )}
+
       </ul>
     </div>
   );

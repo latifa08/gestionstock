@@ -6,33 +6,25 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // 🧹 حذف session
-    navigate("/login"); // 🚀 رجوع للوغين
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
     <div className="navbar">
-      
       <div className="nav-logo">SysStock</div>
 
       <div className="nav-actions">
 
-        {/* 🌙 Dark Mode */}
-        <div className="mode-toggle">
-          <button onClick={toggleDarkMode}>
-            {darkMode ? "Light Mode" : "Dark Mode"}
-          </button>
-        </div>
+        <button onClick={toggleDarkMode}>
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
 
-        {/* 🚪 Logout */}
-        <div className="logout">
-          <button onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+        <button onClick={handleLogout}>
+          Logout
+        </button>
 
       </div>
-
     </div>
   );
 }

@@ -1,91 +1,120 @@
-
 .dashboard-content {
-  max-width: 1200px;  
   width: 100%;
-  margin: 0 auto;       
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 20px;
-  box-sizing: border-box;
-}
 
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 🔥 نقصنا أكثر باش يقرّبوا كامل */
+
+  background: #f8f9fc;
+  min-height: 100vh;
+}
 
 .dashboard-content h1 {
-  font-size: 28px;
+  font-size: 26px;
   color: #3c096c;
-  margin-bottom: 20px;
+  font-weight: 700;
+  margin-bottom: 5px;
 }
 
-
+/* ================= OVERVIEW ================= */
 .overview {
   display: flex;
-  gap: 20px;
+  gap: 10px; /* 🔥 قريب بزاف */
   flex-wrap: wrap;
-  margin-bottom: 30px;
 }
 
 .overview .card {
-  flex: 1 1 220px;       
-  min-width: 220px;      
-  padding: 16px 20px;
-  border-radius: 12px;
-  background: #7b2cbf;
+  flex: 1 1 260px;
+  min-width: 260px;
+  height: 130px; /* 🔥 زدت شوية حجم */
+
+  background: linear-gradient(135deg, #7b2cbf, #9d4edd);
   color: white;
+
+  padding: 20px;
+  border-radius: 16px;
+
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: transform 0.2s;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+
+  transition: 0.25s;
 }
 
 .overview .card:hover {
   transform: translateY(-4px);
 }
 
-.overview .card .icon {
-  font-size: 32px;
+.overview .card h4 {
+  font-size: 16px; /* 🔥 أكبر شوي */
 }
 
+.overview .card span {
+  font-size: 30px; /* 🔥 الرقم يبان */
+  font-weight: bold;
+}
 
+.overview .card .icon {
+  font-size: 38px;
+}
+
+/* ================= GRID-3 ================= */
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 10px; /* 🔥 نقصنا المسافة */
 }
 
+/* ================= GRID-2 ================= */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px; /* 🔥 نقصنا المسافة */
 }
 
+/* ================= CARD ================= */
+.card {
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
 
-.card.center {
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  gap: 8px;
 }
 
-.card.center svg {
-  width: 200px !important;
-  height: 200px !important;
-  margin-bottom: 10px;
+.card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
 }
 
+/* ================= CHARTS ================= */
+.recharts-responsive-container {
+  width: 100% !important;
+  height: 210px !important;
+}
 
+/* ================= CALENDAR ================= */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  margin-bottom: 20px;
+  gap: 3px; /* 🔥 قريب بزاف */
 }
 
 .day {
-  padding: 6px;
-  background: #f0f0f0;
+  padding: 5px;
+  background: #f1f1f1;
   border-radius: 6px;
   text-align: center;
+  font-size: 11px;
 }
 
 .day.head {
@@ -93,42 +122,42 @@
   color: white;
 }
 
+.calendar .day.active {
+  background: #9d4edd;
+  color: white;
+  border-radius: 50%;
+}
+
+/* ================= TOP STORES ================= */
 .store {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 12px;
 }
 
 .store .bar {
   flex: 1;
-  background: #f0f0f0;
-  height: 12px;
-  border-radius: 6px;
+  height: 7px;
+  background: #eee;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .store .bar div {
   height: 100%;
-  background-color: #7b2cbf;
-  border-radius: 6px;
+  background: linear-gradient(90deg, #7b2cbf, #c77dff);
 }
 
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 
-.card h3 {
-  margin-bottom: 15px;
-}
-
-@media (max-width: 768px) {
   .overview {
     flex-direction: column;
   }
-  .grid-3, .grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
-.calendar .day.active {
-  background-color: #7b2cbf;
-  color: white;
-  border-radius: 50%;
 }

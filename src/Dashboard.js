@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import OverviewCards from "./OverviewCards";
 import TopStores from "./TopStores";
+
 import {
   LineChart,
   Line,
@@ -15,6 +16,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+
 import "./Dashboard.css";
 
 const pieColors = ["#9d4edd", "#d3a0f7"];
@@ -25,43 +27,66 @@ export default function Dashboard() {
   const [lineData, setLineData] = useState([]);
   const [pieData, setPieData] = useState([]);
   const [barData, setBarData] = useState([]);
-  const [mouvements, setMouvements] = useState([]);
+  const [mouvMap, setMouvMap] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // ===== OVERVIEW =====
+        // ================= OVERVIEW =================
         const resOverview = await axios.get(
           "http://localhost:5000/dashboard/overview"
         );
         setOverview(resOverview.data || {});
 
-        // ===== MOUVEMENTS =====
+        // ================= MOUVEMENTS =================
         const resMouvements = await axios.get(
-          "http://localhost:5000/mouvements"
+          "http://localhost:5000/dashboard/mouvements"
         );
 
         const mouv = Array.isArray(resMouvements.data)
           ? resMouvements.data
           : [];
 
-        setMouvements(mouv);
+        // ================= CLEAN DATE =================
+        const formatDate = (d) => {
+          const date = new Date(d);
+          if (isNaN(date.getTime())) return null;
+          return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        };
 
-        // ===== TOP PRODUCTS =====
+        // ================= CALENDAR MAP =================
+        const map = {};
+        mouv.forEach((m) => {
+          const key = formatDate(m.date);
+          if (key) map[key] = true;
+        });
+        setMouvMap(map);
+
+        // ================= TOP PRODUCTS FIX =================
         const ventes = {};
 
         mouv.forEach((m) => {
-          if ((m.type === "SORTIE" || m.type === "vente") && m.produit) {
-            ventes[m.produit] =
-              (ventes[m.produit] || 0) + (m.quantite || 0);
+          const type = (m.type || "").toLowerCase();
+
+          if (type === "sortie" || type === "vente") {
+            const name =
+              m.nom_produit && m.nom_produit.trim() !== ""
+                ? m.nom_produit
+                : m.id_produit
+                ? `Produit ${m.id_produit}`
+                : "Produit inconnu";
+
+            ventes[name] = (ventes[name] || 0) + (Number(m.quantite) || 0);
           }
         });
 
         const top = Object.entries(ventes)
-          .map(([produit, ventes]) => ({ produit, ventes }))
+          .map(([name, ventes]) => ({ name, ventes }))
           .sort((a, b) => b.ventes - a.ventes)
           .slice(0, 5);
 
@@ -74,7 +99,7 @@ export default function Dashboard() {
           }))
         );
 
-        // ===== LINE CHART =====
+        // ================= LINE (ACTIVITY FIX) =================
         const months = [
           "Jan","Fev","Mar","Avr","Mai","Jui",
           "Juil","Aou","Sep","Oct","Nov","Dec"
@@ -84,58 +109,60 @@ export default function Dashboard() {
           months.map((m, idx) => ({
             name: m,
             value: mouv.filter((mv) => {
-              if (!mv.date) return false;
-              const d = new Date(mv.date);
-              if (isNaN(d.getTime())) return false;
+              const date = new Date(mv.date);
+              if (isNaN(date.getTime())) return false;
+
+              const type = (mv.type || "").toLowerCase();
 
               return (
-                d.getMonth() === idx &&
-                (mv.type === "SORTIE" || mv.type === "vente")
+                date.getMonth() === idx &&
+                (type === "sortie" || type === "vente")
               );
             }).length,
           }))
         );
 
-        // ===== PRODUCTS STOCK =====
+        // ================= PIE =================
         const resProducts = await axios.get(
-          "http://localhost:5000/products"
+          "http://localhost:5000/dashboard/products"
         );
 
         const products = Array.isArray(resProducts.data)
           ? resProducts.data
           : [];
 
-        const total = products.length;
         const inStock = products.filter((p) => (p.quantite || 0) > 0).length;
-        const outStock = total - inStock;
+        const outStock = products.length - inStock;
 
         setPieData([
           { name: "En Stock", value: inStock },
           { name: "Hors stock", value: outStock },
         ]);
 
-        // ===== BAR CHART =====
+        // ================= BAR FIX =================
         const days = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
 
         setBarData(
           days.map((d, idx) => ({
             name: d,
             value: mouv.filter((mv) => {
-              if (!mv.date) return false;
               const date = new Date(mv.date);
               if (isNaN(date.getTime())) return false;
 
+              const type = (mv.type || "").toLowerCase();
+
               return (
                 date.getDay() === idx &&
-                (mv.type === "SORTIE" || mv.type === "vente")
+                (type === "sortie" || type === "vente")
               );
             }).length,
           }))
         );
 
-        setLoading(false);
       } catch (err) {
-        console.error("Dashboard error:", err);
+        console.error(err);
+        setError("Erreur chargement dashboard");
+      } finally {
         setLoading(false);
       }
     };
@@ -144,6 +171,7 @@ export default function Dashboard() {
   }, []);
 
   if (loading) return <h3>Loading dashboard...</h3>;
+  if (error) return <h3 style={{ color: "red" }}>{error}</h3>;
 
   const today = new Date();
   const daysInMonth = new Date(
@@ -159,8 +187,6 @@ export default function Dashboard() {
       <OverviewCards overview={overview} />
 
       <div className="grid-3">
-
-        {/* LINE CHART */}
         <div className="card">
           <h3>Ventes</h3>
           <ResponsiveContainer width="100%" height={180}>
@@ -173,7 +199,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* PIE CHART (FIXED) */}
         <div className="card center">
           <h3>Stock</h3>
           <PieChart width={250} height={200}>
@@ -185,28 +210,23 @@ export default function Dashboard() {
               outerRadius={90}
               paddingAngle={3}
             >
-              {pieData.map((entry, i) => (
-                <Cell
-                  key={i}
-                  fill={pieColors[i % pieColors.length]}
-                />
+              {pieData.map((_, i) => (
+                <Cell key={i} fill={pieColors[i % pieColors.length]} />
               ))}
             </Pie>
             <Tooltip />
           </PieChart>
         </div>
 
-        {/* TOP PRODUCTS */}
         <div className="card">
           <TopStores topStores={topStoresData} />
         </div>
       </div>
 
       <div className="grid-2">
-
-        {/* CALENDAR */}
         <div className="card">
           <h3>Calendrier</h3>
+
           <div className="calendar">
             {["L","M","M","J","V","S","D"].map((d) => (
               <div key={d} className="day head">{d}</div>
@@ -214,17 +234,12 @@ export default function Dashboard() {
 
             {[...Array(daysInMonth)].map((_, i) => {
               const day = i + 1;
-
-              const hasActivity = mouvements.some((m) => {
-                if (!m.date) return false;
-                const d = new Date(m.date);
-                return d.getDate() === day;
-              });
+              const key = `${today.getFullYear()}-${today.getMonth() + 1}-${day}`;
 
               return (
                 <div
                   key={i}
-                  className={`day ${hasActivity ? "active" : ""}`}
+                  className={`day ${mouvMap[key] ? "active" : ""}`}
                 >
                   {day}
                 </div>
@@ -233,9 +248,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* BAR CHART */}
         <div className="card">
           <h3>Activité</h3>
+
           <ResponsiveContainer width="100%" height={150}>
             <BarChart data={barData}>
               <XAxis dataKey="name" />
@@ -245,7 +260,6 @@ export default function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
       </div>
     </div>
   );
