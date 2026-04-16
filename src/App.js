@@ -17,6 +17,7 @@ import Login from "./Login";
 import BarcodePage from "./BarcodePage";
 import RapportStock from "./RapportStock";
 import StockAlert from "./StockAlert";
+import Chatbot from "./Chatbot";
 
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -170,6 +171,14 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/Chatbot"
+              element={
+               <ProtectedRoute allowedRoles={["admin", "responsable", "magasinier"]}>
+                <Chatbot />
+             </ProtectedRoute>
+  }
+/>
 
             <Route path="*" element={<Login />} />
 

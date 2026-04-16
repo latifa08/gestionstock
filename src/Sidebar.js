@@ -30,6 +30,7 @@ export default function Sidebar({ darkMode }) {
             <li><NavLink to="/stockalert" className="link">⚠️ Stock Alert</NavLink></li>
             <li><NavLink to="/barcode" className="link">🖨 Barcode</NavLink></li>
             <li><NavLink to="/rapportstock" className="link">📊 Rapport Stock</NavLink></li>
+            <li><NavLink to="/Chatbot" className="link">🤖 Chatbot</NavLink></li>
           </>
         )}
 
@@ -42,6 +43,7 @@ export default function Sidebar({ darkMode }) {
             <li><NavLink to="/clients" className="link">👥 Clients</NavLink></li>
             <li><NavLink to="/fournisseurs" className="link">🚚 Fournisseurs</NavLink></li>
             <li><NavLink to="/facture" className="link">📄 Facture</NavLink></li>
+            <li><NavLink to="/Chatbot" className="link">🤖 Chatbot</NavLink></li>
           </>
         )}
 
@@ -53,6 +55,7 @@ export default function Sidebar({ darkMode }) {
             <li><NavLink to="/facture" className="link">📄 Facture</NavLink></li>
             <li><NavLink to="/stockalert" className="link">⚠️ Stock Alert</NavLink></li>
             <li><NavLink to="/barcode" className="link">🖨 Barcode</NavLink></li>
+            <li><NavLink to="/Chatbot" className="link">🤖 Chatbot</NavLink></li>
           </>
         )}
 
