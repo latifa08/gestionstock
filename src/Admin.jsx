@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import Swal from "sweetalert2";
+import api from "./api";
 import "./Admin.css";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("magasinier");
   const [search, setSearch] = useState("");
+  const [modalMode, setModalMode] = useState(null); // null | 'create' | 'edit'
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [modalForm, setModalForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "magasinier",
+  });
+  const [modalLoading, setModalLoading] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // 🔐 protect page (simple without token)
   useEffect(() => {
     if (!user || user.role !== "admin") {
       window.location.href = "/login";
@@ -22,146 +30,212 @@ const Admin = () => {
     fetchUsers();
   }, []);
 
-  // =========================
-  // GET USERS
-  // =========================
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/users");
+      const res = await api.get("/api/users");
       setUsers(res.data);
     } catch (err) {
       console.error("GET USERS ERROR:", err.message);
     }
   };
 
-  // =========================
-  // ADD USER
-  // =========================
-  const addUser = async () => {
-    if (!email || !password) return alert("Fill all fields");
+  const resetModal = () => {
+    setModalMode(null);
+    setSelectedUser(null);
+    setModalForm({ first_name: "", last_name: "", email: "", password: "", phone: "", role: "magasinier" });
+  };
 
+  const openEditModal = (u) => {
+    setSelectedUser(u);
+    setModalForm({
+      first_name: u.first_name || "",
+      last_name: u.last_name || "",
+      email: u.email,
+      password: "",
+      phone: u.phone || "",
+      role: u.role,
+    });
+    setModalMode("edit");
+  };
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/users", {
-        email,
-        password,
-        role,
+      if (modalMode === "create") {
+        await api.post("/api/users", modalForm);
+        Swal.fire({
+          icon: "success",
+          title: "Utilisateur créé",
+          timer: 2000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      } else {
+        const { first_name, last_name, email, phone, role } = modalForm;
+        await api.put(`/api/users/${selectedUser.id}`, { first_name, last_name, email, phone, role });
+        Swal.fire({
+          icon: "success",
+          title: "Utilisateur mis à jour",
+          timer: 2000,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+      await fetchUsers();
+      resetModal();
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: err.response?.data?.message || "Erreur serveur",
       });
-
-      setEmail("");
-      setPassword("");
-      setRole("magasinier");
-
-      fetchUsers();
-    } catch (err) {
-      alert(err.response?.data?.message || "Error adding user");
+    } finally {
+      setModalLoading(false);
     }
   };
 
-  // =========================
-  // DELETE USER
-  // =========================
-  const deleteUser = async (id) => {
-    if (!window.confirm("Delete user?")) return;
+  const deleteUser = async (u) => {
+    const result = await Swal.fire({
+      title: "Supprimer cet utilisateur ?",
+      text: `${u.first_name || ""} ${u.last_name || u.email}`.trim(),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e74c3c",
+      confirmButtonText: "Supprimer",
+      cancelButtonText: "Annuler",
+    });
+    if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/users/${id}`);
-      fetchUsers();
-    } catch (err) {
-      alert(err.response?.data?.message || "Delete failed");
-    }
-  };
-
-  // =========================
-  // EDIT USER
-  // =========================
-  const editUser = async (id) => {
-    const newEmail = prompt("New email:");
-    const newRole = prompt("Role (admin / magasinier / responsable / user):");
-
-    if (!newEmail || !newRole) return;
-
-    try {
-      await axios.put(`http://localhost:5000/api/users/${id}`, {
-        email: newEmail,
-        role: newRole,
+      await api.delete(`/api/users/${u.id}`);
+      Swal.fire({
+        icon: "success",
+        title: "Utilisateur supprimé",
+        timer: 2000,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
       });
-
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: err.response?.data?.message || "Suppression échouée",
+      });
     }
   };
 
-  // =========================
-  // SEARCH FILTER
-  // =========================
   const filtered = users.filter((u) =>
-    u.email.toLowerCase().includes(search.toLowerCase())
+    `${u.first_name || ""} ${u.last_name || ""} ${u.email} ${u.role || ""} ${u.phone || ""}`.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="admin-page">
       <h2>Admin Panel</h2>
 
-      {/* ADD USER */}
-      <div className="form-admin">
-        <input
-          type="email"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="magasinier">magasinier</option>
-          <option value="responsable">responsable</option>
-          <option value="admin">admin</option>
-          <option value="user">user</option>
-        </select>
-
-        <button onClick={addUser}>Add</button>
+      <div style={{ textAlign: "center", marginBottom: "25px" }}>
+        <button className="btn-add-user" onClick={() => setModalMode("create")}>
+          Ajouter un utilisateur
+        </button>
       </div>
 
-      {/* SEARCH */}
-   {/* SEARCH */}
-<input
-  id="searchUser"
-  placeholder="search..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-/>
-      {/* TABLE */}
+      <input
+        id="searchUser"
+        placeholder="Rechercher..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <table className="admin-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>Nom complet</th>
             <th>Email</th>
-            <th>Role</th>
+            <th>Téléphone</th>
+            <th>Rôle</th>
+            <th>Créé le</th>
             <th>Actions</th>
           </tr>
         </thead>
-
         <tbody>
           {filtered.map((u) => (
             <tr key={u.id}>
-              <td>{u.id}</td>
+              <td>{`${u.first_name || ""} ${u.last_name || ""}`.trim() || "—"}</td>
               <td>{u.email}</td>
+              <td>{u.phone || "—"}</td>
               <td>{u.role}</td>
+              <td>{u.created_at ? new Date(u.created_at).toLocaleDateString("fr-FR") : "—"}</td>
               <td>
-                <button onClick={() => editUser(u.id)}>Edit</button>
-                <button onClick={() => deleteUser(u.id)}>Delete</button>
+                <button onClick={() => openEditModal(u)}>Modifier</button>
+                <button className="delete-btn" onClick={() => deleteUser(u)}>Supprimer</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {modalMode && (
+        <div className="modal-overlay" onClick={resetModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>{modalMode === "create" ? "Ajouter un utilisateur" : "Modifier l'utilisateur"}</h3>
+            <form onSubmit={handleModalSubmit}>
+              <input
+                type="text"
+                placeholder="Prénom"
+                value={modalForm.first_name}
+                onChange={(e) => setModalForm({ ...modalForm, first_name: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Nom"
+                value={modalForm.last_name}
+                onChange={(e) => setModalForm({ ...modalForm, last_name: e.target.value })}
+              />
+              <input
+                type="email"
+                placeholder="Email *"
+                required
+                value={modalForm.email}
+                onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
+              />
+              {modalMode === "create" && (
+                <input
+                  type="password"
+                  placeholder="Mot de passe *"
+                  required
+                  minLength={8}
+                  value={modalForm.password}
+                  onChange={(e) => setModalForm({ ...modalForm, password: e.target.value })}
+                />
+              )}
+              <input
+                type="text"
+                placeholder="Téléphone"
+                value={modalForm.phone}
+                onChange={(e) => setModalForm({ ...modalForm, phone: e.target.value })}
+              />
+              <select
+                value={modalForm.role}
+                onChange={(e) => setModalForm({ ...modalForm, role: e.target.value })}
+              >
+                <option value="magasinier">magasinier</option>
+                <option value="responsable">responsable</option>
+                <option value="admin">admin</option>
+              </select>
+              <div className="modal-actions">
+                <button type="button" onClick={resetModal}>Annuler</button>
+                <button type="submit" disabled={modalLoading}>
+                  {modalLoading ? "..." : modalMode === "create" ? "Créer" : "Enregistrer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

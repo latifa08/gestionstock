@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import axios from "axios";
+import api from "./api";
 import "./RapportStock.css";
 
 function RapportStock() {
@@ -9,8 +9,8 @@ function RapportStock() {
 
   // 🔥 API data
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/rapport-stock")
+    api
+      .get("/api/rapport-stock")
       .then((res) => {
         setData(Array.isArray(res.data) ? res.data : []);
       })

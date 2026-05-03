@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "./api";
 import "./Clients.css";
 
 export default function Clients() {
-  const apiUrl = "http://localhost:5000/clients";
+  const apiUrl = "/clients";
 
   const initialForm = { nom: "", telephone: "", adresse: "", email: "", type: "" };
   const [list, setList] = useState([]);
@@ -15,19 +15,12 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/clients")
-      .then(res => res.json())
-      .then(data => console.log("TEST FETCH:", data))
-      .catch(err => console.error("FETCH ERROR:", err));
-  }, []);
-
-  useEffect(() => {
     fetchClients();
   }, []);
 
   const fetchClients = async () => {
     try {
-      const res = await axios.get(apiUrl);
+      const res = await api.get(apiUrl);
       setList(res.data);
     } catch (err) {
       console.error(err);
@@ -44,9 +37,9 @@ export default function Clients() {
 
     try {
       if (editId !== null) {
-        await axios.put(`${apiUrl}/${editId}`, form);
+        await api.put(`${apiUrl}/${editId}`, form);
       } else {
-        await axios.post(apiUrl, form);
+        await api.post(apiUrl, form);
       }
 
       await fetchClients();
@@ -77,7 +70,7 @@ export default function Clients() {
     if (!window.confirm("Supprimer ce client ?")) return;
 
     try {
-      await axios.delete(`${apiUrl}/${id}`);
+      await api.delete(`${apiUrl}/${id}`);
       fetchClients();
     } catch (err) {
       console.error(err);

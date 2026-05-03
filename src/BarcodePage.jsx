@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import api from "./api";
 import "./BarcodePage.css";
 
 export default function BarcodePage() {
@@ -30,13 +31,10 @@ export default function BarcodePage() {
     if (!code) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/produits/${code.trim()}`
-      );
+      const res = await api.get(`/api/produits/${code.trim()}`);
+      const result = res.data;
 
-      const result = await res.json();
-
-      if (!res.ok || !result.success) {
+      if (!result.success) {
         alert(result.message || "Produit non trouvé !");
         return;
       }
@@ -71,7 +69,7 @@ export default function BarcodePage() {
       });
 
     } catch (err) {
-      alert("Erreur serveur");
+      alert(err.response?.data?.message || "Produit non trouvé !");
     }
   };
 
@@ -142,15 +140,10 @@ export default function BarcodePage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/vente", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart }),
-      });
+      const res = await api.post("/api/vente", { cart });
+      const result = res.data;
 
-      const result = await res.json();
-
-      if (!res.ok || !result.success) {
+      if (!result.success) {
         alert(result.message || "Erreur vente !");
         return;
       }

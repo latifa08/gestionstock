@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "./api";
 import "./Products.css";
 
 export default function Products() {
-  const apiUrl = "http://localhost:5000/products";
+  const apiUrl = "/products";
 
   const initialForm = {
     nom_produit: "",
@@ -30,7 +30,7 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(apiUrl);
+      const res = await api.get(apiUrl);
       setList(res.data);
     } catch (err) {
       console.error("Erreur fetch produits:", err);
@@ -64,9 +64,9 @@ export default function Products() {
       };
 
       if (editId) {
-        await axios.put(`${apiUrl}/${editId}`, dataToSend);
+        await api.put(`${apiUrl}/${editId}`, dataToSend);
       } else {
-        await axios.post(apiUrl, dataToSend);
+        await api.post(apiUrl, dataToSend);
       }
 
       setForm(initialForm);
@@ -97,7 +97,7 @@ export default function Products() {
       if (!window.confirm("Voulez-vous vraiment supprimer ce produit ?"))
         return;
 
-      await axios.delete(`${apiUrl}/${id}`);
+      await api.delete(`${apiUrl}/${id}`);
       fetchProducts();
     } catch (err) {
       console.error("Erreur delete produit:", err);

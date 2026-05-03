@@ -14,6 +14,8 @@ import Products from "./Products";
 import MouvementPage from "./MouvementPage";
 import Facture from "./Facture";
 import Login from "./Login";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 import BarcodePage from "./BarcodePage";
 import RapportStock from "./RapportStock";
 import StockAlert from "./StockAlert";
@@ -49,8 +51,7 @@ function AppContent() {
     { produit: "PC", stock: 0 },
   ];
 
-  const hideLayout =
-    location.pathname === "/login" || location.pathname === "/";
+  const hideLayout = ["/login", "/", "/forgot-password", "/reset-password"].includes(location.pathname);
 
   return (
     <div className="app-container">
@@ -71,6 +72,8 @@ function AppContent() {
           <Routes>
 
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* 👑 ADMIN = كلشي */}
             <Route

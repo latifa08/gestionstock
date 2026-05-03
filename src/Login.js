@@ -9,13 +9,10 @@ import stockkImg from "./images/p.jpg";
 function Login() {
   const navigate = useNavigate();
 
-  const [isRegister, setIsRegister] = useState(false);
-  const [role, setRole] = useState("responsable");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 🚀 redirect by role
   const redirectByRole = (role) => {
     switch (role) {
       case "admin":
@@ -32,23 +29,17 @@ function Login() {
     }
   };
 
-  // 🔐 auto login (FIX JSON.parse error)
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-
     if (!storedUser || storedUser === "undefined") return;
-
     try {
       const user = JSON.parse(storedUser);
-      if (user?.role) {
-        redirectByRole(user.role);
-      }
-    } catch (err) {
+      if (user?.role) redirectByRole(user.role);
+    } catch {
       localStorage.removeItem("user");
     }
   }, []);
 
-  // 🔐 LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -72,49 +63,11 @@ function Login() {
         return;
       }
 
+      localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       redirectByRole(data.user.role);
-    } catch (err) {
-      setError("خطأ في الاتصال بالسيرفر");
-    }
-  };
-
-  // 🆕 REGISTER
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email || !password) {
-      setError("الرجاء تعبئة كل الحقول");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        setError(data.message || "Register failed");
-        return;
-      }
-
-      // register يرجع id فقط
-      const newUser = {
-        id: data.id,
-        email,
-        role,
-      };
-
-      localStorage.setItem("user", JSON.stringify(newUser));
-
-      redirectByRole(role);
-    } catch (err) {
+    } catch {
       setError("خطأ في الاتصال بالسيرفر");
     }
   };
@@ -140,30 +93,9 @@ function Login() {
         <div className="login-form">
           <img src={avatarImg} alt="avatar" className="login-avatar" />
 
-          <h3>{isRegister ? "Créer un compte" : "Connexion"}</h3>
+          <h3>Connexion</h3>
 
-          {/* ROLES */}
-          {isRegister && (
-            <div className="role-select">
-              <button
-                type="button"
-                className={role === "responsable" ? "active" : ""}
-                onClick={() => setRole("responsable")}
-              >
-                Responsable
-              </button>
-
-              <button
-                type="button"
-                className={role === "magasinier" ? "active" : ""}
-                onClick={() => setRole("magasinier")}
-              >
-                Magasinier
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={isRegister ? handleRegister : handleLogin}>
+          <form onSubmit={handleLogin}>
             <input
               type="email"
               placeholder="Email"
@@ -180,17 +112,15 @@ function Login() {
 
             {error && <p className="error">{error}</p>}
 
-            <button type="submit">
-              {isRegister ? "Créer le compte" : "Se connecter"}
-            </button>
+            <button type="submit">Se connecter</button>
           </form>
 
           <p className="switch">
-            {isRegister
-              ? "Vous avez déjà un compte ?"
-              : "Vous n’avez pas de compte ?"}
-            <span onClick={() => setIsRegister(!isRegister)}>
-              {isRegister ? " Se connecter" : " Créer un compte"}
+            <span
+              style={{ cursor: "pointer", color: "#a78bfa" }}
+              onClick={() => navigate("/forgot-password")}
+            >
+              Mot de passe oublié ?
             </span>
           </p>
         </div>

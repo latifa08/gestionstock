@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "./api";
 import "./MouvementPage.css";
 
 const MouvementPage = () => {
@@ -17,10 +17,10 @@ const MouvementPage = () => {
 
   const [recherche, setRecherche] = useState("");
 
-  const API_PRODUITS = "http://localhost:5000/products";
-  const API_MOUVEMENTS = "http://localhost:5000/mouvements";
-  const API_CLIENTS = "http://localhost:5000/clients";
-  const API_FOURNISSEURS = "http://localhost:5000/fournisseurs";
+  const API_PRODUITS = "/products";
+  const API_MOUVEMENTS = "/mouvements";
+  const API_CLIENTS = "/clients";
+  const API_FOURNISSEURS = "/fournisseurs";
 
   useEffect(() => {
     fetchProduits();
@@ -32,7 +32,7 @@ const MouvementPage = () => {
   // ================= FETCH =================
   const fetchProduits = async () => {
     try {
-      const res = await axios.get(API_PRODUITS);
+      const res = await api.get(API_PRODUITS);
       setProduits(res.data);
     } catch (err) {
       console.error(err);
@@ -41,7 +41,7 @@ const MouvementPage = () => {
 
   const fetchMouvements = async () => {
     try {
-      const res = await axios.get(API_MOUVEMENTS);
+      const res = await api.get(API_MOUVEMENTS);
       setMouvements(res.data);
     } catch (err) {
       console.error(err);
@@ -50,7 +50,7 @@ const MouvementPage = () => {
 
   const fetchClients = async () => {
     try {
-      const res = await axios.get(API_CLIENTS);
+      const res = await api.get(API_CLIENTS);
       setClients(res.data);
     } catch (err) {
       console.error(err);
@@ -59,7 +59,7 @@ const MouvementPage = () => {
 
   const fetchFournisseurs = async () => {
     try {
-      const res = await axios.get(API_FOURNISSEURS);
+      const res = await api.get(API_FOURNISSEURS);
       setFournisseurs(res.data);
     } catch (err) {
       console.error(err);
@@ -85,7 +85,7 @@ const MouvementPage = () => {
       return alert("Quantité invalide");
 
     try {
-      const res = await axios.post(API_PRODUITS, {
+      const res = await api.post(API_PRODUITS, {
         nom_produit: nouveauProduit.nom,
         categorie: "General",
         description: "",
@@ -101,9 +101,9 @@ const MouvementPage = () => {
         (p) => p.nom_produit === nouveauProduit.nom
       );
 
-      await axios.post(API_MOUVEMENTS, {
+      await api.post(API_MOUVEMENTS, {
         id_produit: res.data.id_produit || res.data.id,
-        type: "ENTREE",
+        type: "entree",
         quantite: qte,
         id_client: nouveauProduit.client_id || null,
         id_fournisseur: produit?.fournisseur_id || null,
@@ -138,14 +138,14 @@ const MouvementPage = () => {
     try {
       const produit = produits.find((p) => p.id_produit === id);
 
-      await axios.put(`${API_PRODUITS}/${id}`, {
+      await api.put(`${API_PRODUITS}/${id}`, {
         ...produit,
         quantite: produit.quantite - qte,
       });
 
-      await axios.post(API_MOUVEMENTS, {
+      await api.post(API_MOUVEMENTS, {
         id_produit: id,
-        type: "SORTIE",
+        type: "sortie",
         quantite: qte,
         id_client: nouveauProduit.client_id || null,
         id_fournisseur: produit?.fournisseur_id || null,

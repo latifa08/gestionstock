@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "./api";
 import "./Fournisseurs.css";
 
 export default function Fournisseurs() {
-  const apiUrl = "http://localhost:5000/fournisseurs";
+  const apiUrl = "/fournisseurs";
 
   const [list, setList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,7 +24,7 @@ export default function Fournisseurs() {
 
   const fetchFournisseurs = async () => {
     try {
-      const res = await axios.get(apiUrl);
+      const res = await api.get(apiUrl);
       setList(res.data);
     } catch (err) {
       console.error(err);
@@ -43,7 +43,7 @@ export default function Fournisseurs() {
 
     try {
       if (editId !== null) {
-        await axios.put(`${apiUrl}/${editId}`, form);
+        await api.put(`${apiUrl}/${editId}`, form);
 
         setList((prev) =>
           prev.map((f) =>
@@ -53,7 +53,7 @@ export default function Fournisseurs() {
 
         setEditId(null);
       } else {
-        const res = await axios.post(apiUrl, form);
+        const res = await api.post(apiUrl, form);
 
         setList([...list, { ...form, id: res.data.id }]);
       }
@@ -86,7 +86,7 @@ export default function Fournisseurs() {
       return;
 
     try {
-      await axios.delete(`${apiUrl}/${id}`);
+      await api.delete(`${apiUrl}/${id}`);
       setList(list.filter((f) => f.id !== id));
     } catch (err) {
       console.error(err);

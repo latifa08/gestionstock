@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import api from "./api";
 import "./StockAlert.css";
 
 function StockAlert() {
@@ -16,7 +16,7 @@ function StockAlert() {
     const fetchStockAlert = async () => {
       try {
         // 🔗 طلب للباك-إند (منتجات اللي كملو)
-        const res = await axios.get("http://localhost:5000/stock-alert");
+        const res = await api.get("/stock-alert");
 
         setStockData(res.data);
       } catch (err) {

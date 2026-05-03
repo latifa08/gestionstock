@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import "./Facture.css";
 
 function Facture() {
-  const API = "http://localhost:5000";
+  const API = "";
 
   const [produits, setProduits] = useState([]);
   const [fournisseurs, setFournisseurs] = useState([]);
@@ -31,9 +31,9 @@ function Facture() {
   const loadData = async () => {
     try {
       const [p, f, fac] = await Promise.all([
-        axios.get(`${API}/products`),
-        axios.get(`${API}/fournisseurs`),
-        axios.get(`${API}/api/factures`)
+        api.get(`${API}/products`),
+        api.get(`${API}/fournisseurs`),
+        api.get(`${API}/api/factures`)
       ]);
 
       setProduits(p.data || []);
@@ -87,7 +87,7 @@ function Facture() {
           })),
       };
 
-      const res = await axios.post(`${API}/api/facture`, data);
+      const res = await api.post(`${API}/api/facture`, data);
 
       alert(res.data.message || "Facture créée");
 
@@ -108,7 +108,7 @@ function Facture() {
   // ================= VIEW =================
   const viewFacture = async (id) => {
     try {
-      const res = await axios.get(`${API}/api/facture/${id}`);
+      const res = await api.get(`${API}/api/facture/${id}`);
       setSelectedFacture(res.data || null);
       setTab("detail");
     } catch (err) {
@@ -123,7 +123,7 @@ function Facture() {
       const confirmDelete = window.confirm("Supprimer cette facture ?");
       if (!confirmDelete) return;
 
-      await axios.delete(`${API}/api/facture/${id}`);
+      await api.delete(`${API}/api/facture/${id}`);
       alert("Facture supprimée");
       loadData();
     } catch (err) {
