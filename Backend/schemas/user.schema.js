@@ -10,20 +10,20 @@ const resetPasswordSchema = Joi.object({
 });
 
 const createUserSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
   password: Joi.string().min(8).required(),
   role: Joi.string().valid("admin", "responsable", "magasinier").default("magasinier"),
-  first_name: Joi.string().max(100),
-  last_name: Joi.string().max(100),
-  phone: Joi.string().max(30),
+  first_name: Joi.string().max(100).allow("", null).optional(),
+  last_name: Joi.string().max(100).allow("", null).optional(),
+  phone: Joi.string().max(30).allow("", null).optional(),
 });
 
 const updateUserSchema = Joi.object({
-  email: Joi.string().email(),
-  role: Joi.string().valid("admin", "responsable", "magasinier"),
-  first_name: Joi.string().max(100),
-  last_name: Joi.string().max(100),
-  phone: Joi.string().max(30),
+  email: Joi.string().email({ tlds: { allow: false } }).optional(),
+  role: Joi.string().valid("admin", "responsable", "magasinier").optional(),
+  first_name: Joi.string().max(100).allow("", null).optional(),
+  last_name: Joi.string().max(100).allow("", null).optional(),
+  phone: Joi.string().max(30).allow("", null).optional(),
 });
 
 module.exports = { forgotPasswordSchema, resetPasswordSchema, createUserSchema, updateUserSchema };

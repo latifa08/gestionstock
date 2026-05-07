@@ -31,6 +31,7 @@ function AppContent() {
   const location = useLocation();
 
   const [darkMode, setDarkMode] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (darkMode) {
@@ -40,9 +41,8 @@ function AppContent() {
     }
   }, [darkMode]);
 
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
-  };
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
   const stockData = [
     { produit: "Stylo", stock: 80 },
@@ -52,18 +52,24 @@ function AppContent() {
   ];
 
   const hideLayout = ["/login", "/", "/forgot-password", "/reset-password"].includes(location.pathname);
+  const sidebarW = sidebarOpen ? 220 : 0;
 
   return (
     <div className="app-container">
 
-      {!hideLayout && <Sidebar darkMode={darkMode} />}
+      {!hideLayout && <Sidebar darkMode={darkMode} open={sidebarOpen} />}
 
-      <div className="main-area">
+      <div
+        className="main-area"
+        style={{ marginLeft: hideLayout ? 0 : sidebarW, width: hideLayout ? "100%" : `calc(100% - ${sidebarW}px)` }}
+      >
 
         {!hideLayout && (
           <Navbar
             toggleDarkMode={toggleDarkMode}
             darkMode={darkMode}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={toggleSidebar}
           />
         )}
 

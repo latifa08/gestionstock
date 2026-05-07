@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 const env = require("./.env");
 const db = require("./db");
 const { handleDbError } = require("./middleware/errors");
@@ -10,6 +11,7 @@ const app = express();
 app.use(cors({ origin: env.FRONT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ===================================================
 // Routes

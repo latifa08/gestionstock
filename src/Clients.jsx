@@ -10,8 +10,8 @@ export default function Clients() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(initialForm);
+  const [modalError, setModalError] = useState("");
 
-  // 🔥 NEW: search state
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -31,8 +31,9 @@ export default function Clients() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
-    if (!form.nom.trim() || !form.telephone.trim() || !form.adresse.trim()) {
-      return alert("Nom, Telephone et Adresse sont obligatoires !");
+    setModalError("");
+    if (!form.nom.trim()) {
+      return setModalError("Le nom est obligatoire.");
     }
 
     try {
@@ -48,12 +49,17 @@ export default function Clients() {
       setShowModal(false);
 
     } catch (err) {
-      console.error("Server error:", err.response?.data || err.message);
-      alert("Erreur serveur");
+      const data = err.response?.data;
+      if (data?.errors?.length) {
+        setModalError(data.errors.map(e => `${e.field}: ${e.message}`).join(" | "));
+      } else {
+        setModalError(data?.message || err.message || "Erreur serveur");
+      }
     }
   };
 
   const handleEdit = (client) => {
+    setModalError("");
     setForm({
       nom: client.nom || "",
       telephone: client.telephone || "",
@@ -93,10 +99,11 @@ export default function Clients() {
           onClick={() => {
             setForm(initialForm);
             setEditId(null);
+            setModalError("");
             setShowModal(true);
           }}
         >
-          + Add Client
+          + Ajouter client
         </button>
       </div>
 
@@ -154,20 +161,44 @@ export default function Clients() {
       {showModal && (
         <div className="overlay">
           <div className="modal">
-            <h3>{editId ? "Edit Client" : "Add Client"}</h3>
+            <h3>{editId ? "Modifier le client" : "Ajouter un client"}</h3>
 
-            <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} />
-            <input name="telephone" placeholder="Telephone" value={form.telephone} onChange={handleChange} />
-            <input name="adresse" placeholder="Adresse" value={form.adresse} onChange={handleChange} />
-            <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-            <input name="type" placeholder="Type Client" value={form.type} onChange={handleChange} />
+            <div className="form-field">
+              <label className="field-label">Nom *</label>
+              <input name="nom" placeholder="Nom du client" value={form.nom} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Téléphone</label>
+              <input name="telephone" placeholder="Ex: 0555 123 456" value={form.telephone} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Adresse</label>
+              <input name="adresse" placeholder="Adresse complète" value={form.adresse} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Email</label>
+              <input name="email" placeholder="exemple@mail.com" value={form.email} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Type de client</label>
+              <input name="type" placeholder="Ex: Particulier, Entreprise…" value={form.type} onChange={handleChange} />
+            </div>
+
+            {modalError && (
+              <div style={{
+                background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
+                padding: "10px 14px", color: "#b91c1c", fontSize: 13
+              }}>
+                {modalError}
+              </div>
+            )}
 
             <div className="modal-actions">
-              <button type="button" onClick={() => setShowModal(false)}>
-                Cancel
+              <button type="button" className="cancel" onClick={() => setShowModal(false)}>
+                Annuler
               </button>
-              <button type="button" onClick={handleSave}>
-                {editId ? "Update" : "Save"}
+              <button type="button" className="save" onClick={handleSave}>
+                {editId ? "Modifier" : "Enregistrer"}
               </button>
             </div>
           </div>

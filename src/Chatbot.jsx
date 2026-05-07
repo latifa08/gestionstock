@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "👋 مرحبا! أنا AI تاع المخزون" }
+    { sender: "bot", text: "ai" }
   ]);
 
   const [input, setInput] = useState("");

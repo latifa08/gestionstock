@@ -87,10 +87,14 @@ const Admin = () => {
       await fetchUsers();
       resetModal();
     } catch (err) {
+      const data = err.response?.data;
+      const detail = data?.errors?.length
+        ? data.errors.map(e => `• ${e.field}: ${e.message}`).join("\n")
+        : data?.message || "Erreur serveur";
       Swal.fire({
         icon: "error",
-        title: "Erreur",
-        text: err.response?.data?.message || "Erreur serveur",
+        title: "Erreur de validation",
+        text: detail,
       });
     } finally {
       setModalLoading(false);

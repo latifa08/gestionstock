@@ -54,7 +54,10 @@
       "PowerShell(& \"C:\\\\Users\\\\DELL\\\\Desktop\\\\memoir-l3\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1\" -Json)",
       "PowerShell(& \"C:\\\\Users\\\\DELL\\\\Desktop\\\\memoir-l3\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json)",
       "PowerShell(& \"C:\\\\Users\\\\DELL\\\\Desktop\\\\memoir-l3\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(head -582 BarcodePage.css)",
+      "Bash(printf '\\\\n/* Print is handled via popup window in handlePrint\\(\\) */\\\\n@media print {\\\\n  .no-print { display: none !important; }\\\\n}\\\\n')",
+      "Bash(mv BarcodePage.css.tmp BarcodePage.css)"
     ]
   }
 }
