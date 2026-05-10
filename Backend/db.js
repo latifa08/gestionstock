@@ -4,7 +4,7 @@ const env = require("./.env");
 const db = new Pool({
   host: env.DB_HOST || "localhost",
   user: env.DB_USER || "postgres",
-  password: env.DB_PASSWORD || "tita2005",
+  password: env.DB_PASSWORD || "aya66",
   database: env.DB_NAME || "stock",
   port: parseInt(env.DB_PORT || "5432"),
 });

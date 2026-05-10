@@ -1,0 +1,4 @@
+Backend/.env
+Backend/ai.py
+Backend/db.js
+Backend/migrate.js

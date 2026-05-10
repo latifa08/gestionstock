@@ -16,7 +16,7 @@ CORS(app)
 conn = psycopg2.connect(
     dbname="stock",
     user="postgres",
-    password="tita2005",
+    password="aya66",
     host="localhost",
     port="5432"
 )
