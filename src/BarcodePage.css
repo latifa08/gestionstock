@@ -481,17 +481,37 @@
 }
 .pf-close-btn:hover { background:#ede9fe; }
 
-/* motif */
-.pf-motif {
-  margin:14px 28px 0;
-  padding:9px 14px;
-  background:#faf8ff;
-  border-left:3px solid #5b2da3;
-  border-radius:0 8px 8px 0;
-  font-size:13px; color:#4b3f72;
-  display:flex; gap:8px; align-items:center;
+/* meta row: statut / créé-par / date */
+.pf-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 14px 28px 0;
+  padding: 12px 16px;
+  background: #faf8ff;
+  border-radius: 10px;
+  border: 1px solid #ede9fe;
 }
-.pf-motif-lbl { font-weight:700; color:#5b2da3; flex-shrink:0; }
+.pf-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+.pf-meta-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: #9589b8;
+}
+.pf-meta-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b2e;
+}
+.pf-status-ok      { color: #059669; }
+.pf-status-pending { color: #b45309; }
 
 /* lines head */
 .pf-lines-head {

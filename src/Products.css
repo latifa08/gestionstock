@@ -73,6 +73,37 @@ th {
 }
 
 /* BUTTONS */
+.lots-btn {
+  background: #ede9fe;
+  color: #5b2da3;
+  border: 1.5px solid #ddd5f8;
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background .15s;
+}
+.lots-btn:hover { background: #ddd5f8; }
+
+.lots-btn-warn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
 .edit {
   background: #22c55e;
   color: white;
@@ -303,3 +334,124 @@ th {
   color: #ccc;
   font-size: 18px;
 }
+
+/* ── Add-lot form inside LotsModal ── */
+.lot-add-box {
+  border: 1.5px solid #ede9fe;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: #faf8ff;
+}
+
+.lot-add-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #5b2da3;
+  margin-bottom: 12px;
+}
+
+.lot-add-fields {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.lot-add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.lot-add-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: #7c6fa0;
+}
+
+.lot-add-input {
+  padding: 7px 10px;
+  border: 1.5px solid #ddd5f8;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  color: #1e1b2e;
+  transition: border-color .15s;
+}
+.lot-add-input:focus { border-color: #5b2da3; }
+
+.lot-add-btn {
+  padding: 7px 18px;
+  background: #5b2da3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.lot-add-btn:hover:not(:disabled) { background: #4a2280; }
+.lot-add-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.lot-add-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.lot-add-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #9589b8;
+  font-style: italic;
+}
+
+/* ── Lot row action buttons (edit / delete / save / cancel) ── */
+.lot-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background .13s, border-color .13s;
+  margin: 0 2px;
+}
+.lot-edit   { background: #ede9fe; color: #5b2da3; border-color: #ddd5f8; }
+.lot-edit:hover   { background: #ddd5f8; }
+.lot-delete { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.lot-delete:hover { background: #fee2e2; }
+.lot-save   { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+.lot-save:hover   { background: #d1fae5; }
+.lot-cancel { background: #f9fafb; color: #6b7280; border-color: #e5e7eb; }
+.lot-cancel:hover { background: #f3f4f6; }
+
+/* Expiry badge in table */
+.exp-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.exp-ok      { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.exp-soon    { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
+.exp-expired { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }

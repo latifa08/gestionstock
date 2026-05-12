@@ -8,6 +8,7 @@ const createMouvementSchema = Joi.object({
   id_fournisseur: Joi.number().integer().positive().allow(null),
   raison: Joi.string().max(255).allow("", null),
   date: Joi.date().iso().allow(null),
+  date_expiration: Joi.date().iso().allow("", null),
 });
 
 module.exports = { createMouvementSchema };

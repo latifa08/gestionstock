@@ -10,6 +10,7 @@ const createProductSchema = Joi.object({
   date_ajout: Joi.date().iso().allow(null),
   niveau_alerte: Joi.number().integer().min(0).default(0),
   code_bar: Joi.string().max(100).allow("", null),
+  date_expiration: Joi.date().iso().allow("", null),
 });
 
 const updateProductSchema = Joi.object({
@@ -22,6 +23,7 @@ const updateProductSchema = Joi.object({
   date_ajout: Joi.date().iso().allow(null),
   niveau_alerte: Joi.number().integer().min(0),
   code_bar: Joi.string().max(100).allow("", null),
+  date_expiration: Joi.date().iso().allow("", null),
 });
 
 module.exports = { createProductSchema, updateProductSchema };

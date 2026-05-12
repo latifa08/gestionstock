@@ -2,6 +2,63 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "./api";
 import "./MouvementPage.css";
 
+/* ── print a single bon de sortie ─────────────── */
+function printBonSortie(m) {
+  const win = window.open("", "_blank", "width=700,height=600");
+  const date = m.date ? new Date(m.date).toLocaleString("fr-DZ") : "—";
+  win.document.write(`<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Bon de Sortie #${m.id_mouvement}</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #1e1b2e; }
+    h1   { font-size: 22px; font-weight: 800; color: #5b2da3; margin: 0 0 4px; }
+    .sub { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+    .header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: #f5f3ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid #ede9fe; }
+    .hfield label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #7c3aed; display: block; margin-bottom: 2px; }
+    .hfield span  { font-size: 14px; font-weight: 600; color: #1e1b2e; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #fee2e2; color: #991b1b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th { background: #5b2da3; color: white; padding: 8px 12px; font-size: 12px; text-align: left; }
+    td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #f0ebff; }
+    tr:last-child td { border-bottom: none; }
+    .footer { margin-top: 32px; display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af; }
+    .sig { text-align: center; border-top: 1.5px solid #d1d5db; padding-top: 8px; width: 160px; font-size: 12px; color: #6b7280; }
+    @media print { body { margin: 16px; } }
+  </style>
+</head>
+<body>
+  <h1>BON DE SORTIE</h1>
+  <p class="sub">SysStock — Document de traçabilité</p>
+
+  <div class="header-grid">
+    <div class="hfield"><label>N° Mouvement</label><span>#${m.id_mouvement}</span></div>
+    <div class="hfield"><label>Statut</label><span class="badge">Sortie validée</span></div>
+    <div class="hfield"><label>Créé par</label><span>${m.created_by || "—"}</span></div>
+    <div class="hfield"><label>Date de création</label><span>${date}</span></div>
+    <div class="hfield"><label>Client</label><span>${m.nom_client || "—"}</span></div>
+    <div class="hfield"><label>Raison</label><span>${m.raison || "—"}</span></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Produit</th><th>Quantité sortie</th></tr></thead>
+    <tbody>
+      <tr><td>${m.nom_produit || m.id_produit}</td><td>${m.quantite} pcs</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <span>Imprimé le ${new Date().toLocaleString("fr-DZ")}</span>
+    <div class="sig">Signature responsable</div>
+  </div>
+
+  <script>window.onload = () => { window.print(); window.close(); }</script>
+</body>
+</html>`);
+  win.document.close();
+}
+
 const BACKEND = "http://localhost:5000";
 
 /* ── tiny sub-components ─────────────────── */
@@ -121,6 +178,7 @@ export default function MouvementPage() {
   const [inQty,      setInQty]      = useState("");
   const [inFourn,    setInFourn]    = useState("");
   const [inRaison,   setInRaison]   = useState("");
+  const [inExpiry,   setInExpiry]   = useState("");
   const [inError,    setInError]    = useState("");
   const [inBusy,     setInBusy]     = useState(false);
   const inDropRef = useRef(null);
@@ -132,6 +190,7 @@ export default function MouvementPage() {
   const [outRaison,  setOutRaison]  = useState("");
   const [outError,   setOutError]   = useState("");
   const [outBusy,    setOutBusy]    = useState(false);
+  const [outLots,    setOutLots]    = useState([]);   /* lots for selected product */
   const outDropRef = useRef(null);
 
   /* table filter */
@@ -154,6 +213,34 @@ export default function MouvementPage() {
     api.get("/fournisseurs").then(r => setFournisseurs(r.data)).catch(() => {});
   };
 
+  /* fetch lots when product selected for sortie */
+  useEffect(() => {
+    if (!outSel) { setOutLots([]); return; }
+    api.get(`/lots/product/${outSel.id_produit}`).then(r => setOutLots(r.data)).catch(() => setOutLots([]));
+  }, [outSel]);
+
+  /* valid (non-expired) lots and stock total */
+  const validLots = outLots.filter(l =>
+    l.date_expiration === null || Number(l.days_left) >= 0
+  );
+  const validStock = validLots.reduce((s, l) => s + Number(l.quantite), 0);
+  const allExpired = outSel && outLots.length > 0 && validStock === 0;
+
+  /* FEFO preview: only from valid lots */
+  const fefoPreview = (() => {
+    const qty = parseInt(outQty, 10);
+    if (!qty || qty < 1 || !validLots.length) return [];
+    let rem = qty;
+    const affected = [];
+    for (const lot of validLots) {
+      if (rem <= 0) break;
+      const take = Math.min(rem, Number(lot.quantite));
+      affected.push({ ...lot, take });
+      rem -= take;
+    }
+    return affected;
+  })();
+
   /* ── submit entree ── */
   const submitEntree = async () => {
     setInError("");
@@ -163,14 +250,15 @@ export default function MouvementPage() {
     setInBusy(true);
     try {
       await api.post("/mouvements", {
-        id_produit:     inSel.id_produit,
-        type:           "entree",
-        quantite:       n,
-        id_fournisseur: inFourn ? Number(inFourn) : null,
-        raison:         inRaison || null,
+        id_produit:      inSel.id_produit,
+        type:            "entree",
+        quantite:        n,
+        id_fournisseur:  inFourn ? Number(inFourn) : null,
+        raison:          inRaison || null,
+        date_expiration: inExpiry || null,
       });
       fetchAll();
-      setInSel(null); setInQty(""); setInFourn(""); setInRaison("");
+      setInSel(null); setInQty(""); setInFourn(""); setInRaison(""); setInExpiry("");
     } catch (err) {
       setInError(err.response?.data?.message || "Erreur lors de l'enregistrement.");
     } finally {
@@ -182,9 +270,10 @@ export default function MouvementPage() {
   const submitSortie = async () => {
     setOutError("");
     if (!outSel) return setOutError("Veuillez sélectionner un produit.");
+    if (allExpired) return setOutError("Impossible — tout le stock de ce produit est expiré.");
     const n = parseInt(outQty, 10);
     if (!n || n < 1) return setOutError("Quantité invalide (minimum 1).");
-    if (n > outSel.quantite) return setOutError(`Stock insuffisant — seulement ${outSel.quantite} disponible.`);
+    if (n > validStock) return setOutError(`Stock valide insuffisant — seulement ${validStock} disponible (lots expirés exclus).`);
     setOutBusy(true);
     try {
       await api.post("/mouvements", {
@@ -195,7 +284,7 @@ export default function MouvementPage() {
         raison:     outRaison || null,
       });
       fetchAll();
-      setOutSel(null); setOutQty(""); setOutClient(""); setOutRaison("");
+      setOutSel(null); setOutQty(""); setOutClient(""); setOutRaison(""); setOutLots([]);
     } catch (err) {
       setOutError(err.response?.data?.message || "Erreur lors de l'enregistrement.");
     } finally {
@@ -242,14 +331,20 @@ export default function MouvementPage() {
                 value={inQty} onChange={e => setInQty(e.target.value)} />
             </div>
             <div className="mv-field">
-              <label className="mv-label">Fournisseur</label>
-              <select className="mv-input" value={inFourn} onChange={e => setInFourn(e.target.value)}>
-                <option value="">— Optionnel —</option>
-                {fournisseurs.map(f => (
-                  <option key={f.id_fournisseur} value={f.id_fournisseur}>{f.nom}</option>
-                ))}
-              </select>
+              <label className="mv-label">Date d'expiration du lot</label>
+              <input className="mv-input" type="date" value={inExpiry}
+                onChange={e => setInExpiry(e.target.value)} />
             </div>
+          </div>
+
+          <div className="mv-field">
+            <label className="mv-label">Fournisseur</label>
+            <select className="mv-input" value={inFourn} onChange={e => setInFourn(e.target.value)}>
+              <option value="">— Optionnel —</option>
+              {fournisseurs.map(f => (
+                <option key={f.id_fournisseur} value={f.id_fournisseur}>{f.nom}</option>
+              ))}
+            </select>
           </div>
 
           <div className="mv-field">
@@ -283,15 +378,27 @@ export default function MouvementPage() {
             <ProductPicker produits={produits} value={outSel} onChange={setOutSel} dropRef={outDropRef} />
           </div>
 
+          {/* expired product warning */}
+          {allExpired && (
+            <div className="mv-expired-warning">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Produit expiré — tout le stock disponible a dépassé la date d'expiration. Sortie impossible.
+            </div>
+          )}
+
           <div className="mv-row2">
             <div className="mv-field">
               <label className="mv-label">Quantité *</label>
               <input className="mv-input" type="number" min="1"
                 placeholder="0"
-                max={outSel?.quantite || undefined}
-                value={outQty} onChange={e => setOutQty(e.target.value)} />
-              {outSel && (
-                <span className="mv-hint">Max disponible : {outSel.quantite}</span>
+                max={validStock || undefined}
+                value={outQty} onChange={e => setOutQty(e.target.value)}
+                disabled={allExpired} />
+              {outSel && !allExpired && (
+                <span className="mv-hint">Max valide : {validStock} pcs{validStock < outSel.quantite ? ` (${outSel.quantite - validStock} pcs expirés exclus)` : ""}</span>
               )}
             </div>
             <div className="mv-field">
@@ -311,9 +418,47 @@ export default function MouvementPage() {
               value={outRaison} onChange={e => setOutRaison(e.target.value)} />
           </div>
 
+          {/* FEFO lot viewer */}
+          {outSel && outLots.length > 0 && (
+            <div className="mv-lots-box">
+              <div className="mv-lots-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Lots disponibles — ordre FEFO (plus proche expiration en premier)
+              </div>
+              <table className="mv-lots-table">
+                <thead><tr><th>Expiration</th><th>Stock lot</th><th>Sera prélevé</th></tr></thead>
+                <tbody>
+                  {outLots.map(lot => {
+                    const preview = fefoPreview.find(p => p.id_lot === lot.id_lot);
+                    const daysLeft = lot.days_left !== null ? Number(lot.days_left) : null;
+                    const urgency = daysLeft === null ? "" : daysLeft < 0 ? "lot-expired" : daysLeft <= 3 ? "lot-soon" : "";
+                    return (
+                      <tr key={lot.id_lot} className={urgency}>
+                        <td>
+                          {lot.date_expiration
+                            ? <><span>{lot.date_expiration.split("T")[0]}</span>
+                                {daysLeft !== null && (
+                                  <span className="mv-days-badge">
+                                    {daysLeft < 0 ? `Expiré ${Math.abs(daysLeft)}j` : daysLeft === 0 ? "Aujourd'hui" : `${daysLeft}j`}
+                                  </span>
+                                )}</>
+                            : <span className="mv-no-exp">Sans expiration</span>}
+                        </td>
+                        <td>{lot.quantite} pcs</td>
+                        <td>{preview ? <strong className="mv-fefo-take">−{preview.take}</strong> : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           {outError && <div className="mv-error">{outError}</div>}
 
-          <button className="mv-btn mv-btn-out" onClick={submitSortie} disabled={outBusy}>
+          <button className="mv-btn mv-btn-out" onClick={submitSortie} disabled={outBusy || allExpired}>
             {outBusy ? <><span className="mv-spin" /> Enregistrement…</> : (
               <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="20 6 9 17 4 12"/>
@@ -369,11 +514,12 @@ export default function MouvementPage() {
           <table className="mv-table">
             <thead><tr>
               <th>ID</th><th>Produit</th><th>Type</th><th>Quantité</th>
-              <th>Client</th><th>Fournisseur</th><th>Raison</th><th>Date</th>
+              <th>Client</th><th>Fournisseur</th><th>Raison</th>
+              <th>Créé par</th><th>Date</th><th></th>
             </tr></thead>
             <tbody>
               {mouvements.length === 0
-                ? <tr><td colSpan="8" className="mv-empty">Aucun mouvement enregistré</td></tr>
+                ? <tr><td colSpan="10" className="mv-empty">Aucun mouvement enregistré</td></tr>
                 : mouvements.map(m => (
                   <tr key={m.id_mouvement}>
                     <td>{m.id_mouvement}</td>
@@ -383,7 +529,26 @@ export default function MouvementPage() {
                     <td>{m.nom_client || "—"}</td>
                     <td>{m.nom_fournisseur || "—"}</td>
                     <td>{m.raison || "—"}</td>
+                    <td className="mv-created-by">
+                      <span className="mv-cb-email">{m.created_by || "—"}</span>
+                      {m.created_by_role && (
+                        <span className={`mv-cb-role mv-cb-role-${m.created_by_role}`}>
+                          {m.created_by_role}
+                        </span>
+                      )}
+                    </td>
                     <td>{m.date ? new Date(m.date).toLocaleString("fr-DZ") : "—"}</td>
+                    <td>
+                      {m.type === "sortie" && (
+                        <button className="mv-btn-print" onClick={() => printBonSortie(m)} title="Imprimer le bon de sortie">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                            <rect x="6" y="14" width="12" height="8"/>
+                          </svg>
+                          Bon
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))
               }

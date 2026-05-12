@@ -81,3 +81,53 @@ body.dark-mode .navbar {
   background: rgba(239,68,68,0.25);
   border-color: rgba(239,68,68,0.5);
 }
+
+/* User info block */
+.nav-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+}
+
+.nav-user-email {
+  font-weight: 500;
+  opacity: 0.85;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Role badge */
+.nav-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav-role-admin {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nav-role-magasinier {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nav-role-responsable {
+  background: #dbeafe;
+  color: #1e40af;
+}

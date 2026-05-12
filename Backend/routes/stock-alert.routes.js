@@ -14,6 +14,26 @@ router.get("/stock-alert", requireAuth([]), async (req, res, next) => {
   }
 });
 
+router.get("/stock-alert/expiring", requireAuth([]), async (req, res, next) => {
+  try {
+    const result = await db.query(
+      `SELECT l.id_lot, l.id_produit, p.nom_produit,
+              l.quantite, l.date_expiration,
+              l.date_expiration - CURRENT_DATE AS days_left
+       FROM lots l
+       JOIN produits p ON l.id_produit = p.id_produit
+       WHERE l.date_expiration IS NOT NULL
+         AND l.date_expiration <= CURRENT_DATE + INTERVAL '3 days'
+         AND l.quantite > 0
+         AND p.archived_at IS NULL
+       ORDER BY l.date_expiration ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/api/produits/:code", requireAuth([]), async (req, res, next) => {
   try {
     const result = await db.query("SELECT * FROM produits WHERE code_bar = $1 AND archived_at IS NULL", [req.params.code]);

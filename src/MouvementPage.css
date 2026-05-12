@@ -393,3 +393,134 @@
 .mv-type.sortie     { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .mv-type.retour     { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 .mv-type.ajustement { background: #fefce8; color: #b45309; border: 1px solid #fde68a; }
+
+/* ── Created-by cell ── */
+.mv-created-by {
+  max-width: 170px;
+}
+
+.mv-cb-email {
+  display: block;
+  font-size: 12px;
+  color: #4b3f72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
+
+.mv-cb-role {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: capitalize;
+}
+
+.mv-cb-role-admin       { background: #fef3c7; color: #92400e; }
+.mv-cb-role-magasinier  { background: #d1fae5; color: #065f46; }
+.mv-cb-role-responsable { background: #dbeafe; color: #1e40af; }
+
+/* ── Expired product warning in stock-out ── */
+.mv-expired-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  border-radius: 9px;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.mv-expired-warning svg { flex-shrink: 0; margin-top: 1px; }
+
+/* ── FEFO lot viewer ── */
+.mv-lots-box {
+  margin: 10px 0 12px;
+  border: 1.5px solid #ddd5f8;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.mv-lots-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: #f5f3ff;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5b2da3;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-bottom: 1px solid #ede9fe;
+}
+
+.mv-lots-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mv-lots-table th {
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: #7c6fa0;
+  background: #faf8ff;
+  border-bottom: 1px solid #ede9fe;
+  text-align: left;
+}
+.mv-lots-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #faf8ff;
+  vertical-align: middle;
+  color: #1e1b2e;
+}
+.mv-lots-table tr:last-child td { border-bottom: none; }
+.mv-lots-table tr.lot-expired { background: #fff1f2; }
+.mv-lots-table tr.lot-soon    { background: #fffbeb; }
+
+.mv-days-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #fff7ed;
+  color: #92400e;
+}
+.lot-expired .mv-days-badge { background: #fee2e2; color: #991b1b; }
+
+.mv-no-exp { color: #b0a4cc; font-style: italic; }
+
+.mv-fefo-take { color: #dc2626; font-size: 13px; }
+
+/* ── Print bon de sortie button ── */
+.mv-btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1.5px solid #ddd5f8;
+  border-radius: 7px;
+  background: #f5f3ff;
+  color: #5b2da3;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.mv-btn-print:hover {
+  background: #ede9fe;
+  border-color: #a78bfa;
+}

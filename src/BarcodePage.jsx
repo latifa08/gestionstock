@@ -26,6 +26,14 @@ function ProductAvatar({ imageUrl, name, size = 40 }) {
 }
 
 export default function BarcodePage() {
+  /* current user (for traceability) */
+  let currentUser = null;
+  try {
+    const raw = localStorage.getItem("user");
+    if (raw && raw !== "undefined") currentUser = JSON.parse(raw);
+  } catch {}
+  const createdByLabel = currentUser?.email || "—";
+
   /* scan state */
   const [lastProduct, setLastProduct] = useState(null);
   const [scanStatus,  setScanStatus]  = useState(null);
@@ -66,6 +74,7 @@ export default function BarcodePage() {
       }
 
       const p = res.data.data;
+      const validStock = Number(p.valid_stock ?? p.quantite);
       const normalized = {
         id_produit:    p.id_produit,
         nom_produit:   p.nom_produit,
@@ -73,13 +82,20 @@ export default function BarcodePage() {
         categorie:     p.categorie,
         prix_unitaire: Number(p.prix_unitaire),
         quantite:      Number(p.quantite),
+        valid_stock:   validStock,
         niveau_alerte: Number(p.niveau_alerte),
         image_url:     p.image_url || null,
       };
 
       setLastProduct(normalized);
 
-      if (normalized.quantite < 1) {
+      /* all lots expired — hard block */
+      if (Number(p.quantite) > 0 && validStock < 1) {
+        setScanStatus({ type: "error", message: `Produit expiré — ${normalized.nom_produit} (tout le stock a dépassé la date d'expiration)` });
+        return;
+      }
+
+      if (validStock < 1) {
         setScanStatus({ type: "error", message: `Stock épuisé — ${normalized.nom_produit}` });
         return;
       }
@@ -88,8 +104,8 @@ export default function BarcodePage() {
         const idx = prev.findIndex((i) => i.id_produit === normalized.id_produit);
         if (idx !== -1) {
           const newQty = prev[idx].qty + 1;
-          if (newQty > normalized.quantite) {
-            setScanStatus({ type: "error", message: `Stock insuffisant — ${normalized.nom_produit} (${normalized.quantite} dispo)` });
+          if (newQty > validStock) {
+            setScanStatus({ type: "error", message: `Stock valide insuffisant — ${normalized.nom_produit} (${validStock} dispo hors lots expirés)` });
             return prev;
           }
           const updated = [...prev];
@@ -98,7 +114,7 @@ export default function BarcodePage() {
           return updated;
         }
         setScanStatus({ type: "success", message: `Ajouté au bon — ${normalized.nom_produit}` });
-        return [...prev, { ...normalized, stock: normalized.quantite, qty: 1 }];
+        return [...prev, { ...normalized, stock: validStock, qty: 1 }];
       });
     } catch {
       setScanStatus({ type: "error", message: "Erreur de connexion au serveur" });
@@ -253,10 +269,12 @@ export default function BarcodePage() {
   </div>
   <div class="divider"></div>
   <div class="meta">
-    <div class="m-item"><span class="m-lbl">Date d'émission</span><span class="m-val">${todayLong()}</span></div>
     <div class="m-item"><span class="m-lbl">Référence</span><span class="m-val">${PROFORMA_ID}</span></div>
+    <div class="m-item"><span class="m-lbl">Date d'émission</span><span class="m-val">${date ? new Date(date).toLocaleDateString("fr-DZ", { year:"numeric", month:"long", day:"numeric" }) : todayLong()}</span></div>
     ${raison ? `<div class="m-item"><span class="m-lbl">Motif de sortie</span><span class="m-val">${raison}</span></div>` : ''}
-    <div class="m-item"><span class="m-lbl">Statut</span><span class="m-val">${confirmed ? '✔ Confirmé' : 'En attente'}</span></div>
+    <div class="m-item"><span class="m-lbl">Statut</span><span class="m-val" style="font-weight:700;color:${confirmed ? '#059669' : '#b45309'};">${confirmed ? '✔ Confirmé' : '⏳ En attente'}</span></div>
+    <div class="m-item"><span class="m-lbl">Créé par</span><span class="m-val">${createdByLabel}</span></div>
+    <div class="m-item"><span class="m-lbl">Date de création</span><span class="m-val">${new Date().toLocaleString("fr-DZ")}</span></div>
   </div>
   <table>
     <thead><tr>
@@ -553,12 +571,29 @@ export default function BarcodePage() {
               )}
             </div>
 
-            {raison && (
-              <div className="pf-motif">
-                <span className="pf-motif-lbl">Motif</span>
-                <span>{raison}</span>
+            {/* meta: statut / created-by / date */}
+            <div className="pf-meta-row">
+              {raison && (
+                <div className="pf-meta-item">
+                  <span className="pf-meta-lbl">Motif</span>
+                  <span className="pf-meta-val">{raison}</span>
+                </div>
+              )}
+              <div className="pf-meta-item">
+                <span className="pf-meta-lbl">Statut</span>
+                <span className={`pf-meta-val pf-status-${confirmed ? "ok" : "pending"}`}>
+                  {confirmed ? "✔ Confirmé" : "⏳ En attente"}
+                </span>
               </div>
-            )}
+              <div className="pf-meta-item">
+                <span className="pf-meta-lbl">Créé par</span>
+                <span className="pf-meta-val">{createdByLabel}</span>
+              </div>
+              <div className="pf-meta-item">
+                <span className="pf-meta-lbl">Date de création</span>
+                <span className="pf-meta-val">{date || todayISO()}</span>
+              </div>
+            </div>
 
             {/* product lines */}
             <div className="pf-lines-head">

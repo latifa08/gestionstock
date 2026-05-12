@@ -21,6 +21,7 @@ app.use("/products", require("./routes/product.routes"));
 app.use("/clients", require("./routes/client.routes"));
 app.use("/fournisseurs", require("./routes/fournisseur.routes"));
 app.use("/mouvements", require("./routes/mouvement.routes"));
+app.use("/lots",      require("./routes/lot.routes"));
 app.use("/api/vente", require("./routes/vente.routes"));
 app.use("/api/facture", require("./routes/facture.routes"));
 app.use("/api/factures", (req, res, next) => {
