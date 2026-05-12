@@ -1,0 +1,1491 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict lh1jClqXZHjIP1dw5jZWuvHGN5ffrFVJ18SFZgtLw7jUVSzt8FTLf60QXoTWSEk
+
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alertes_stock; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.alertes_stock (
+    id integer NOT NULL,
+    id_produit integer,
+    message character varying(255),
+    date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.alertes_stock OWNER TO postgres;
+
+--
+-- Name: alertes_stock_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.alertes_stock_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.alertes_stock_id_seq OWNER TO postgres;
+
+--
+-- Name: alertes_stock_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.alertes_stock_id_seq OWNED BY public.alertes_stock.id;
+
+
+--
+-- Name: clients; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.clients (
+    id_client integer NOT NULL,
+    nom character varying(255) NOT NULL,
+    telephone character varying(50),
+    adresse character varying(255),
+    email character varying(100),
+    type character varying(50),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    archived_at timestamp with time zone
+);
+
+
+ALTER TABLE public.clients OWNER TO postgres;
+
+--
+-- Name: clients_id_client_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.clients_id_client_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.clients_id_client_seq OWNER TO postgres;
+
+--
+-- Name: clients_id_client_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.clients_id_client_seq OWNED BY public.clients.id_client;
+
+
+--
+-- Name: facture_details; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.facture_details (
+    id integer NOT NULL,
+    id_facture integer,
+    id_produit integer,
+    quantite integer,
+    prix numeric(10,2)
+);
+
+
+ALTER TABLE public.facture_details OWNER TO postgres;
+
+--
+-- Name: facture_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.facture_details_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.facture_details_id_seq OWNER TO postgres;
+
+--
+-- Name: facture_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.facture_details_id_seq OWNED BY public.facture_details.id;
+
+
+--
+-- Name: factures; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.factures (
+    id_facture integer NOT NULL,
+    numero character varying(50),
+    fournisseur character varying(255),
+    date_facture timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    client character varying(255)
+);
+
+
+ALTER TABLE public.factures OWNER TO postgres;
+
+--
+-- Name: factures_id_facture_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.factures_id_facture_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.factures_id_facture_seq OWNER TO postgres;
+
+--
+-- Name: factures_id_facture_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.factures_id_facture_seq OWNED BY public.factures.id_facture;
+
+
+--
+-- Name: fournisseurs; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.fournisseurs (
+    id integer NOT NULL,
+    nom character varying(255) NOT NULL,
+    societe character varying(255),
+    telephone character varying(50),
+    email character varying(100),
+    adresse character varying(255),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    archived_at timestamp with time zone
+);
+
+
+ALTER TABLE public.fournisseurs OWNER TO postgres;
+
+--
+-- Name: fournisseurs_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.fournisseurs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.fournisseurs_id_seq OWNER TO postgres;
+
+--
+-- Name: fournisseurs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.fournisseurs_id_seq OWNED BY public.fournisseurs.id;
+
+
+--
+-- Name: lots; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lots (
+    id_lot integer NOT NULL,
+    id_produit integer NOT NULL,
+    quantite integer DEFAULT 0 NOT NULL,
+    date_expiration date,
+    date_entree date DEFAULT CURRENT_DATE NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT lots_quantite_check CHECK ((quantite >= 0))
+);
+
+
+ALTER TABLE public.lots OWNER TO postgres;
+
+--
+-- Name: lots_id_lot_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lots_id_lot_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lots_id_lot_seq OWNER TO postgres;
+
+--
+-- Name: lots_id_lot_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lots_id_lot_seq OWNED BY public.lots.id_lot;
+
+
+--
+-- Name: messages; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.messages (
+    id integer NOT NULL,
+    sender character varying(10),
+    message text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.messages OWNER TO postgres;
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.messages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.messages_id_seq OWNER TO postgres;
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.messages_id_seq OWNED BY public.messages.id;
+
+
+--
+-- Name: mouvements; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.mouvements (
+    id_mouvement integer NOT NULL,
+    id_produit integer NOT NULL,
+    id_client integer,
+    id_fournisseur integer,
+    type character varying(20) NOT NULL,
+    quantite integer NOT NULL,
+    date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    id_user integer,
+    raison character varying(255) DEFAULT NULL::character varying,
+    CONSTRAINT mouvements_quantite_check CHECK ((quantite > 0)),
+    CONSTRAINT mouvements_type_check CHECK (((type)::text = ANY ((ARRAY['entree'::character varying, 'sortie'::character varying, 'retour'::character varying, 'ajustement'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.mouvements OWNER TO postgres;
+
+--
+-- Name: mouvements_id_mouvement_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.mouvements_id_mouvement_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.mouvements_id_mouvement_seq OWNER TO postgres;
+
+--
+-- Name: mouvements_id_mouvement_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.mouvements_id_mouvement_seq OWNED BY public.mouvements.id_mouvement;
+
+
+--
+-- Name: password_reset_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.password_reset_tokens (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    token character varying(128) NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    used boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.password_reset_tokens OWNER TO postgres;
+
+--
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.password_reset_tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.password_reset_tokens_id_seq OWNER TO postgres;
+
+--
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.password_reset_tokens_id_seq OWNED BY public.password_reset_tokens.id;
+
+
+--
+-- Name: produits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.produits (
+    id_produit integer NOT NULL,
+    nom_produit character varying(255) NOT NULL,
+    categorie character varying(255),
+    description text,
+    quantite integer DEFAULT 0,
+    prix_unitaire numeric(10,2) DEFAULT 0,
+    fournisseur character varying(255),
+    code_bar character varying(100),
+    date_ajout timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    niveau_alerte integer DEFAULT 0,
+    archived_at timestamp with time zone,
+    image_url character varying(500),
+    date_expiration date,
+    CONSTRAINT produits_prix_check CHECK ((prix_unitaire > (0)::numeric)),
+    CONSTRAINT produits_quantite_check CHECK ((quantite >= 0))
+);
+
+
+ALTER TABLE public.produits OWNER TO postgres;
+
+--
+-- Name: produits_id_produit_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.produits_id_produit_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.produits_id_produit_seq OWNER TO postgres;
+
+--
+-- Name: produits_id_produit_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.produits_id_produit_seq OWNED BY public.produits.id_produit;
+
+
+--
+-- Name: refresh_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.refresh_tokens (
+    id integer NOT NULL,
+    id_user integer NOT NULL,
+    token character varying(512) NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.refresh_tokens OWNER TO postgres;
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.refresh_tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.refresh_tokens_id_seq OWNER TO postgres;
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.refresh_tokens_id_seq OWNED BY public.refresh_tokens.id;
+
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.schema_migrations (
+    id integer NOT NULL,
+    filename character varying(255) NOT NULL,
+    applied_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.schema_migrations OWNER TO postgres;
+
+--
+-- Name: schema_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.schema_migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.schema_migrations_id_seq OWNER TO postgres;
+
+--
+-- Name: schema_migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.schema_migrations_id_seq OWNED BY public.schema_migrations.id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    role character varying(20) DEFAULT 'magasinier'::character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    first_name character varying(100),
+    last_name character varying(100),
+    phone character varying(30),
+    CONSTRAINT users_role_check CHECK (((role)::text = ANY ((ARRAY['admin'::character varying, 'responsable'::character varying, 'magasinier'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- Name: vente_details; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.vente_details (
+    id integer NOT NULL,
+    id_vente integer,
+    id_produit integer,
+    quantite integer,
+    prix numeric(10,2)
+);
+
+
+ALTER TABLE public.vente_details OWNER TO postgres;
+
+--
+-- Name: vente_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.vente_details_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.vente_details_id_seq OWNER TO postgres;
+
+--
+-- Name: vente_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.vente_details_id_seq OWNED BY public.vente_details.id;
+
+
+--
+-- Name: ventes; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ventes (
+    id_vente integer NOT NULL,
+    date_vente timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    total numeric(10,2) DEFAULT 0,
+    id_user integer,
+    id_client integer
+);
+
+
+ALTER TABLE public.ventes OWNER TO postgres;
+
+--
+-- Name: ventes_id_vente_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.ventes_id_vente_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.ventes_id_vente_seq OWNER TO postgres;
+
+--
+-- Name: ventes_id_vente_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.ventes_id_vente_seq OWNED BY public.ventes.id_vente;
+
+
+--
+-- Name: alertes_stock id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alertes_stock ALTER COLUMN id SET DEFAULT nextval('public.alertes_stock_id_seq'::regclass);
+
+
+--
+-- Name: clients id_client; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.clients ALTER COLUMN id_client SET DEFAULT nextval('public.clients_id_client_seq'::regclass);
+
+
+--
+-- Name: facture_details id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details ALTER COLUMN id SET DEFAULT nextval('public.facture_details_id_seq'::regclass);
+
+
+--
+-- Name: factures id_facture; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.factures ALTER COLUMN id_facture SET DEFAULT nextval('public.factures_id_facture_seq'::regclass);
+
+
+--
+-- Name: fournisseurs id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fournisseurs ALTER COLUMN id SET DEFAULT nextval('public.fournisseurs_id_seq'::regclass);
+
+
+--
+-- Name: lots id_lot; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lots ALTER COLUMN id_lot SET DEFAULT nextval('public.lots_id_lot_seq'::regclass);
+
+
+--
+-- Name: messages id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.messages ALTER COLUMN id SET DEFAULT nextval('public.messages_id_seq'::regclass);
+
+
+--
+-- Name: mouvements id_mouvement; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements ALTER COLUMN id_mouvement SET DEFAULT nextval('public.mouvements_id_mouvement_seq'::regclass);
+
+
+--
+-- Name: password_reset_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.password_reset_tokens ALTER COLUMN id SET DEFAULT nextval('public.password_reset_tokens_id_seq'::regclass);
+
+
+--
+-- Name: produits id_produit; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produits ALTER COLUMN id_produit SET DEFAULT nextval('public.produits_id_produit_seq'::regclass);
+
+
+--
+-- Name: refresh_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refresh_tokens ALTER COLUMN id SET DEFAULT nextval('public.refresh_tokens_id_seq'::regclass);
+
+
+--
+-- Name: schema_migrations id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.schema_migrations ALTER COLUMN id SET DEFAULT nextval('public.schema_migrations_id_seq'::regclass);
+
+
+--
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: vente_details id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details ALTER COLUMN id SET DEFAULT nextval('public.vente_details_id_seq'::regclass);
+
+
+--
+-- Name: ventes id_vente; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ventes ALTER COLUMN id_vente SET DEFAULT nextval('public.ventes_id_vente_seq'::regclass);
+
+
+--
+-- Data for Name: alertes_stock; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.alertes_stock (id, id_produit, message, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: clients; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.clients (id_client, nom, telephone, adresse, email, type, created_at, archived_at) FROM stdin;
+4	nessrine roulami	0782345696	aindefala			2026-04-16 13:07:33.376763	2026-05-01 14:15:47.169636+01
+1	aya  lazreg	0782183576	chelef	ayalazreg44@gmail.com		2026-04-08 00:07:06.415895	2026-05-06 19:38:06.846875+01
+5	kkk	98765	jlkjhgf	lkjhg@com.com	kjb	2026-05-07 12:44:27.714481	2026-05-07 12:44:33.35058+01
+7	ggg	09998765	KJHH	exemplem@gmail.com	entreprise	2026-05-10 09:24:00.948105	2026-05-10 10:38:30.231223+01
+3	latifa mazouni 	078245676	ain deflaa	mazounilatifa44@gmail.com	gg	2026-04-10 19:06:39.927	\N
+6	gg	123456	hhh	exemple@gmail.com	entreprise	2026-05-10 09:20:40.413519	2026-05-12 11:06:01.806571+01
+\.
+
+
+--
+-- Data for Name: facture_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.facture_details (id, id_facture, id_produit, quantite, prix) FROM stdin;
+35	35	54	1	500.00
+\.
+
+
+--
+-- Data for Name: factures; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.factures (id_facture, numero, fournisseur, date_facture, client) FROM stdin;
+31	FAC-1778096670465		2026-05-06 00:00:00	Sans client
+32	FAC-1778096844812		2026-05-06 00:00:00	Sans client
+33	FAC-1778154519972	mohamed mazouno	2026-05-07 00:00:00	latifa mazouni \t
+34	FAC-1778406073024	mohamed mazouno	2026-05-10 00:00:00	hgdgd
+35	FAC-1778580564396	mohamed mazouno	2026-05-12 00:00:00	ggggg
+\.
+
+
+--
+-- Data for Name: fournisseurs; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.fournisseurs (id, nom, societe, telephone, email, adresse, created_at, archived_at) FROM stdin;
+3	hhh	lll	09876R	poiuytr@com.com	pp	2026-05-07 12:46:47.166194	2026-05-07 12:47:05.306932+01
+4	fdg	gfhf	1234459	exemple@gmai.com	jgfdfg	2026-05-10 09:29:33.80128	2026-05-10 09:29:44.654841+01
+1	mohamed mazouno	rrr	0782193677	mohamedmazouni44@gmail.com	aindefla	2026-04-08 00:14:16.64256	\N
+5	tt	tt	1345678	ff5-@gmail.com	fiodhf	2026-05-12 11:10:04.070106	\N
+\.
+
+
+--
+-- Data for Name: lots; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.lots (id_lot, id_produit, quantite, date_expiration, date_entree, created_at) FROM stdin;
+11	53	8	2026-05-16	2026-05-12	2026-05-12 10:25:52.121166
+10	54	5	2026-05-16	2026-05-12	2026-05-12 10:22:18.566433
+3	52	7	2026-05-11	2026-05-12	2026-05-12 09:58:14.330019
+2	53	18	2026-05-14	2026-05-12	2026-05-12 09:58:14.330019
+4	50	30	2026-05-13	2026-05-12	2026-05-12 09:58:14.330019
+5	49	30	2026-05-18	2026-05-12	2026-05-12 09:58:14.330019
+6	48	50	2026-05-29	2026-05-12	2026-05-12 09:58:14.330019
+12	52	4	2026-05-15	2026-05-12	2026-05-12 10:50:29.431189
+9	54	4	2026-05-14	2026-05-12	2026-05-12 10:22:00.67363
+\.
+
+
+--
+-- Data for Name: messages; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.messages (id, sender, message, created_at) FROM stdin;
+1	user	responsable	2026-04-16 23:50:58.53076
+2	user	responsable	2026-04-16 23:56:20.475711
+3	user	responsable	2026-04-16 23:57:09.559794
+4	user	responsable	2026-04-17 00:13:32.366024
+\.
+
+
+--
+-- Data for Name: mouvements; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.mouvements (id_mouvement, id_produit, id_client, id_fournisseur, type, quantite, date, id_user, raison) FROM stdin;
+120	53	\N	\N	entree	1	2026-05-11 12:01:51.622	15	\N
+121	53	\N	\N	sortie	6	2026-05-11 01:00:00	15	\N
+122	54	\N	\N	sortie	1	2026-05-11 01:00:00	15	\N
+123	52	\N	\N	sortie	2	2026-05-11 01:00:00	15	\N
+124	53	\N	\N	sortie	2	2026-05-11 12:16:22.599	15	magazinier
+125	54	\N	\N	sortie	1	2026-05-12 01:00:00	15	etudient 
+126	54	\N	\N	entree	2	2026-05-12 10:21:29.785	17	\N
+127	54	\N	\N	entree	5	2026-05-12 10:22:00.673	17	\N
+128	54	\N	\N	entree	4	2026-05-12 10:22:18.566	17	\N
+129	53	\N	\N	entree	8	2026-05-12 10:25:52.12	17	\N
+130	52	\N	\N	entree	4	2026-05-12 10:50:29.431	15	\N
+131	47	\N	\N	sortie	1	2026-05-12 01:00:00	15	\N
+132	54	\N	\N	sortie	1	2026-05-12 11:09:24.397186	15	\N
+133	54	\N	\N	sortie	1	2026-05-12 01:00:00	15	\N
+134	54	\N	\N	sortie	1	2026-05-12 01:00:00	15	etudiant
+\.
+
+
+--
+-- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.password_reset_tokens (id, user_id, token, expires_at, used, created_at) FROM stdin;
+8	15	009a5747302176718e25bd27a8ca7a0233ff97c32bca6ebfb531cc3578ffacbe	2026-04-29 15:20:06.77+01	f	2026-04-29 14:20:06.771457+01
+12	17	479a60a49bb4bd23faa8ddf2bf19ec5b8a88e1cf6003d3de3dc9169ea2c7cd05	2026-05-10 11:45:29.863+01	t	2026-05-10 10:45:29.864709+01
+\.
+
+
+--
+-- Data for Name: produits; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.produits (id_produit, nom_produit, categorie, description, quantite, prix_unitaire, fournisseur, code_bar, date_ajout, niveau_alerte, archived_at, image_url, date_expiration) FROM stdin;
+50	chargeur	chargeur pc	dell	30	6000.00	lazreg hassane 	13983	2026-05-11 01:00:00	10	\N	\N	2026-05-13
+49	souris	bluethooth	souris dell	30	700.00	mazouni mohamed 	13770	2026-05-11 01:00:00	10	\N	\N	2026-05-18
+48	pc 	Dell	pc Dell	50	70000.00	mazouni sidali 	13849	2026-05-11 01:00:00	20	\N	\N	2026-05-29
+53	calculatrice	casio 	calculatrice casio 	26	1500.00	lazreg hassane	13385	2026-05-11 01:00:00	10	\N	\N	2026-05-14
+52	 batrie 	electronique	 batrie  electronique de pc	11	10000.00	lazreg hassane	13199	2026-05-11 01:00:00	5	\N	\N	2026-05-16
+47	stylo 	chnider	stylo blu	0	50.00	mazouni sidali  	13964	2026-05-11 01:00:00	10	\N	/uploads/products/product_47_1778495979402.jpg	2026-05-29
+54	classsseur  	A4	scholaire	9	500.00	rahma lazreg	13757	2026-05-11 01:00:00	10	\N	\N	2026-05-07
+\.
+
+
+--
+-- Data for Name: refresh_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.refresh_tokens (id, id_user, token, expires_at, created_at) FROM stdin;
+1	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYwMjYzLCJleHAiOjE3NzgwNjUwNjN9.mwVjfamd6VLU0ewmyrIrRdrAy_N6Tt8AierkF2qzE-M	2026-05-06 11:57:43.011+01	2026-04-29 11:57:43.013832+01
+2	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYwODkzLCJleHAiOjE3NzgwNjU2OTN9.s4584oIcxSKpynDZUMMGzhQOELsG7xJUgBLyCrZX_HI	2026-05-06 12:08:13.752+01	2026-04-29 12:08:13.753076+01
+3	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYwOTMyLCJleHAiOjE3NzgwNjU3MzJ9.hpj64oCtgFS23d3G9jWEsUp8Hm-pH9B4YBBX5j0R-3M	2026-05-06 12:08:52.284+01	2026-04-29 12:08:52.28617+01
+4	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYwOTU1LCJleHAiOjE3NzgwNjU3NTV9.906l29qR5VqAeq_h653vvQBASrdTfFmVBjgb3CJ99V4	2026-05-06 12:09:15.539+01	2026-04-29 12:09:15.540813+01
+5	14	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImlhdCI6MTc3NzQ2MDk1NiwiZXhwIjoxNzc4MDY1NzU2fQ.OlgT7Whd3ynstRF9EhWikia2lFon0-E6l3RDN_DZALY	2026-05-06 12:09:16.112+01	2026-04-29 12:09:16.113686+01
+6	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYxMDk0LCJleHAiOjE3NzgwNjU4OTR9.UrhvUjVbtXoT7KbMA0zg3CRg5_bC7j3sOsUXh6LXZbY	2026-05-06 12:11:34.005+01	2026-04-29 12:11:34.006361+01
+7	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYxMTE4LCJleHAiOjE3NzgwNjU5MTh9.T1rxRatCYQLFkaoLBBsowDkyABdDKx9oTfIdAMvsN7Q	2026-05-06 12:11:58.824+01	2026-04-29 12:11:58.825925+01
+8	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYxNjM0LCJleHAiOjE3NzgwNjY0MzR9.B4jJJ0US0-GapSr97gYV5TQ8qp4kiYWEihxQH7Ex4ZI	2026-05-06 12:20:34.524+01	2026-04-29 12:20:34.525277+01
+9	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYyNzQ0LCJleHAiOjE3NzgwNjc1NDR9.-SiWNSQAvjk-V8Q080LBmSLrKAh9QyWHIE16blBBhuI	2026-05-06 12:39:04.219+01	2026-04-29 12:39:04.219932+01
+10	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDYzNzI0LCJleHAiOjE3NzgwNjg1MjR9.tcEQBySjlPAXtqLUCwaL23VHOlQ5rCTFq7a6PkdQ6Bw	2026-05-06 12:55:24.914+01	2026-04-29 12:55:24.915716+01
+11	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzQ2Mzg2MiwiZXhwIjoxNzc4MDY4NjYyfQ.3CkNfcSz2GnPnnk69fX8rFn6m4iAtT-yJcTPMDDS7MU	2026-05-06 12:57:42.112+01	2026-04-29 12:57:42.113339+01
+12	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDY4MjgyLCJleHAiOjE3NzgwNzMwODJ9.EqJqkLtoqpc9J-MDRzEXtRZxu53VhR5ovXKCtACOc6c	2026-05-06 14:11:22.704+01	2026-04-29 14:11:22.705986+01
+13	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzQ2ODU0MSwiZXhwIjoxNzc4MDczMzQxfQ.AyTupiiJu_KkbGOvkhuNj6P0j-t62gTq0fHGUaP8JV4	2026-05-06 14:15:41.98+01	2026-04-29 14:15:41.981698+01
+14	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzQ2ODU5NCwiZXhwIjoxNzc4MDczMzk0fQ.Y71bAyoxUQra0dG6D_9-bh-efQ1hk6WTZ7ufuPXj38w	2026-05-06 14:16:34.176+01	2026-04-29 14:16:34.177063+01
+15	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzQ2ODgyOSwiZXhwIjoxNzc4MDczNjI5fQ.BO8MzWV6sS8YI-00Zf2V-Y5Ja8GVhePdUICa-OIxlEg	2026-05-06 14:20:29.396+01	2026-04-29 14:20:29.397887+01
+16	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc3NDY5ODk0LCJleHAiOjE3NzgwNzQ2OTR9.WpFRk5a2h37IC-ubHZf9-jFV6WPIVjQp2-UynVhSo9c	2026-05-06 14:38:14.794+01	2026-04-29 14:38:14.79621+01
+17	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzQ5OTY0NywiZXhwIjoxNzc4MTA0NDQ3fQ.MdFzMVRdoK9L5CzTSNRwDhxrUijrqE9Y3ZuxEeTDBgo	2026-05-06 22:54:07.165+01	2026-04-29 22:54:07.166697+01
+18	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzY0MTI2MiwiZXhwIjoxNzc4MjQ2MDYyfQ.NQYUp5FDZUzpnnpo-NDJBYyfZt3BTuaZBp3H8lkWPAc	2026-05-08 14:14:22.402+01	2026-05-01 14:14:22.403963+01
+19	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzY0MjU2OSwiZXhwIjoxNzc4MjQ3MzY5fQ.lef3ZgJcwj4bbjUScN6nN9au2AJ2ZwFOEbgl0pKm-L0	2026-05-08 14:36:09.201+01	2026-05-01 14:36:09.202664+01
+20	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzg3NDM0NCwiZXhwIjoxNzc4NDc5MTQ0fQ.QlEm_8_ItJ_QIwWHKg2hTBikZa7g35gGItS7MbsrKYg	2026-05-11 06:59:04.913+01	2026-05-04 06:59:04.916619+01
+21	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzg3NDY4OCwiZXhwIjoxNzc4NDc5NDg4fQ.J_WRNRJjID787oHBy1bq7Lj3QZV4iSflIFS4zewU4D4	2026-05-11 07:04:48.848+01	2026-05-04 07:04:48.850508+01
+22	16	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYsImlhdCI6MTc3Nzg3NDcwMywiZXhwIjoxNzc4NDc5NTAzfQ.sywIkCt2DfG88cJtn5LiJb2q7T1e-yfVJYDHY0Fn57g	2026-05-11 07:05:03.072+01	2026-05-04 07:05:03.073364+01
+23	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzkyMDc5MywiZXhwIjoxNzc4NTI1NTkzfQ.1Zn8AO2Rqg5mJPkxXsP_vm8gTp0iLWzKbxxHdPDD3r0	2026-05-11 19:53:13.317+01	2026-05-04 19:53:13.318724+01
+24	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3NzkyMjM4MywiZXhwIjoxNzc4NTI3MTgzfQ.1a5ljHsw3YnKweF_T8dRVZ-JcpbAJ5z15bEXdt5Hg5U	2026-05-11 20:19:43.988+01	2026-05-04 20:19:43.989959+01
+25	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzk3ODQ5NiwiZXhwIjoxNzc4NTgzMjk2fQ.sMA4Pd2Gsr9KxcEYRE0m9F-xfjLXd9oPmjJdqa6UJeQ	2026-05-12 11:54:56.518+01	2026-05-05 11:54:56.520971+01
+26	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzk3OTcxOCwiZXhwIjoxNzc4NTg0NTE4fQ.anT-sK9LCIjin7TxMdFaNacDpVShh7ZN8NuwDUtbbYY	2026-05-12 12:15:18.906+01	2026-05-05 12:15:18.907478+01
+27	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzk4MTczMCwiZXhwIjoxNzc4NTg2NTMwfQ.MrLIsYh_Gz6QtoJMClbhTAkgnPpbuLjkcNacRoFA2ts	2026-05-12 12:48:50.932+01	2026-05-05 12:48:50.933612+01
+28	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzk4Mjc1MiwiZXhwIjoxNzc4NTg3NTUyfQ.K-RRb-P9PqikeG5nQzEPJpv_L4598wZ5BUgPXCYnydE	2026-05-12 13:05:52.41+01	2026-05-05 13:05:52.412382+01
+29	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3Nzk4MzcxNywiZXhwIjoxNzc4NTg4NTE3fQ.m_KUQCg4-Gmt3u62GaPZApiUMDvQSdaI902rTjNj9Ls	2026-05-12 13:21:57.257+01	2026-05-05 13:21:57.259159+01
+30	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODAxNDY0NiwiZXhwIjoxNzc4NjE5NDQ2fQ.Ptl0pS6dFRkxaKNBi6ul-X9A1BbXkPkJ8x55M8xJxg0	2026-05-12 21:57:26.642+01	2026-05-05 21:57:26.645396+01
+31	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODAxNjI1MywiZXhwIjoxNzc4NjIxMDUzfQ.nbyTobrfJskKeDA0fJ-TjAgJlq_trEmnNQ0T6wAnuUY	2026-05-12 22:24:13.223+01	2026-05-05 22:24:13.225317+01
+32	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODAyMDc1NCwiZXhwIjoxNzc4NjI1NTU0fQ.rcYBa27Ic3dC7qm614XK1q4BuZx2Svb2CQZrDB4lOcs	2026-05-12 23:39:14.519+01	2026-05-05 23:39:14.520769+01
+33	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODAyMjA1MiwiZXhwIjoxNzc4NjI2ODUyfQ.L1OvCvPqDl7tUVzxC935lJl0DsKXAnvrNys6SyzfhdQ	2026-05-13 00:00:52.926+01	2026-05-06 00:00:52.927406+01
+34	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA2MzMwOCwiZXhwIjoxNzc4NjY4MTA4fQ.YOW5g53uMQTn1kJlktEPcyShoDnAeZJLIvcYJonGIRM	2026-05-13 11:28:28.528+01	2026-05-06 11:28:28.530123+01
+35	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA2NDUyNCwiZXhwIjoxNzc4NjY5MzI0fQ.uasPCI3P-KnCLFpsNmglOzMyosOpSlCPaMjeB0aLRR8	2026-05-13 11:48:44.308+01	2026-05-06 11:48:44.310262+01
+36	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA2NTQ1MiwiZXhwIjoxNzc4NjcwMjUyfQ.7BU2yxyQaUPNYx9nQp3uE4PIh6abOgOvp-9RMWrXL4o	2026-05-13 12:04:12.884+01	2026-05-06 12:04:12.885571+01
+37	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA5MjA1OCwiZXhwIjoxNzc4Njk2ODU4fQ.P2HAK-ZXolkczRy8IChUp60HCNlkgaK8Tpou8p-Ae5E	2026-05-13 19:27:38.036+01	2026-05-06 19:27:38.036951+01
+38	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA5MzIxMiwiZXhwIjoxNzc4Njk4MDEyfQ.D8o5-TRXN-vSCHG0Zt9tB2vJg_vwDO4FOWIImRvrD0o	2026-05-13 19:46:52.881+01	2026-05-06 19:46:52.882727+01
+39	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA5NjAzOSwiZXhwIjoxNzc4NzAwODM5fQ.bAFgl6ysDFsZd4hhi_GG8ihKENVFGIr96XTvEWrbiwg	2026-05-13 20:33:59.132+01	2026-05-06 20:33:59.133602+01
+40	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA5Njk0NiwiZXhwIjoxNzc4NzAxNzQ2fQ.nhvjsxvYinYpmIFKuoN_ttwzOjAObL5UNbKuYKeouos	2026-05-13 20:49:06.607+01	2026-05-06 20:49:06.608235+01
+41	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODA5ODAzNywiZXhwIjoxNzc4NzAyODM3fQ.GJYoCvIvWO8sU1IfcmqtebTivAY1qIeJHsNjmFZSArg	2026-05-13 21:07:17.912+01	2026-05-06 21:07:17.912891+01
+42	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0MTg5NSwiZXhwIjoxNzc4NzQ2Njk1fQ.wWVeHicb7ZIuRZAOwH18l-dS0KuZpt-cz5btg7mzVCU	2026-05-14 09:18:15.677+01	2026-05-07 09:18:15.678622+01
+43	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0MzIyNywiZXhwIjoxNzc4NzQ4MDI3fQ.kjmQ2mPGifPMDI8bZCnj3K54QZ9DvZrL4RKTcEh35RA	2026-05-14 09:40:27.595+01	2026-05-07 09:40:27.597058+01
+44	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0NDI3MSwiZXhwIjoxNzc4NzQ5MDcxfQ.mp49Sdob9MPikd4MX3l_N9byg1cPQ7l-M0Uj_ehjumo	2026-05-14 09:57:51.41+01	2026-05-07 09:57:51.411738+01
+45	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0NTQyNSwiZXhwIjoxNzc4NzUwMjI1fQ.z7aRuRHa36AZdCAKYL4rc3Amn8acAtb8XO3F5Yq8Wdo	2026-05-14 10:17:05.671+01	2026-05-07 10:17:05.67249+01
+46	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0NjUwNCwiZXhwIjoxNzc4NzUxMzA0fQ.2jlhGYmuiS6jSdVAen4pNEjZGfvTOYE1vxLwMSpXIYk	2026-05-14 10:35:04.054+01	2026-05-07 10:35:04.055803+01
+47	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0NzQ0MywiZXhwIjoxNzc4NzUyMjQzfQ.ik1G1oR14kqSjwjgwKep08Dkq_zGkTKD_7tReNQIHIg	2026-05-14 10:50:43.571+01	2026-05-07 10:50:43.572945+01
+48	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE0ODk1MiwiZXhwIjoxNzc4NzUzNzUyfQ.8zkaCMXDanN12EOihCcH03NwMY9EN-BS4ule2qqy9Ag	2026-05-14 11:15:52.122+01	2026-05-07 11:15:52.122714+01
+49	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1MDA4OCwiZXhwIjoxNzc4NzU0ODg4fQ.sGv3yqwP3PjDeDAyJOgs6mBy0q3MS5vvmc5aBkNlSdU	2026-05-14 11:34:48.953+01	2026-05-07 11:34:48.954648+01
+50	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1MTA1NywiZXhwIjoxNzc4NzU1ODU3fQ.aWgmmX535qc7HYjyCfkQOrADfV6Jyrp8NC1BL7NHPL4	2026-05-14 11:50:57.898+01	2026-05-07 11:50:57.899768+01
+51	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1MjYzMywiZXhwIjoxNzc4NzU3NDMzfQ.kWaSqU4Cxru8gbml4xy2XnKcYjXezikeYd8chzdr7n4	2026-05-14 12:17:13.443+01	2026-05-07 12:17:13.444725+01
+52	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1MzY2MiwiZXhwIjoxNzc4NzU4NDYyfQ.WW3KBPdtM4MLU87zJfd9hbQAxEDvvxhEl7Tf3Y4pLX0	2026-05-14 12:34:22.789+01	2026-05-07 12:34:22.790644+01
+53	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1NDU2OSwiZXhwIjoxNzc4NzU5MzY5fQ.p5GjwLVW1Vm-olD1cAftZ_3G0CWWaQqbn6H8AMXVVvE	2026-05-14 12:49:29.188+01	2026-05-07 12:49:29.18928+01
+54	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODE1NTQ0OCwiZXhwIjoxNzc4NzYwMjQ4fQ.AxxeQdqPAM4uIUgPoUFeUfFmcjw1d5NwgWNP_Bn0rL4	2026-05-14 13:04:08.501+01	2026-05-07 13:04:08.502525+01
+55	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODE1NTU3MCwiZXhwIjoxNzc4NzYwMzcwfQ.vcI8GB42tALdPK8hi_BTxXIhdDrABqHKOvVTVp64vqM	2026-05-14 13:06:10.616+01	2026-05-07 13:06:10.618155+01
+56	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1NTc5MCwiZXhwIjoxNzc4NzYwNTkwfQ.lDh_xesYix8MLbHA4lSU4EZNMaJVFYdgGfwdOsU4neg	2026-05-14 13:09:50.23+01	2026-05-07 13:09:50.231745+01
+57	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE1OTI2NCwiZXhwIjoxNzc4NzY0MDY0fQ.6MZzpNHr5a4Cnbc1tqZZQBu-q3dmlEaX6ZgkpA5uNnw	2026-05-14 14:07:44.762+01	2026-05-07 14:07:44.762688+01
+58	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE2NTMxMywiZXhwIjoxNzc4NzcwMTEzfQ.FuVrA9uMM0_CQvBeqE-MKalejMX33AenBc61aOumGqI	2026-05-14 15:48:33.028+01	2026-05-07 15:48:33.030536+01
+59	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODE4MzYwNSwiZXhwIjoxNzc4Nzg4NDA1fQ.mvk1bagsgkgKrCEFeq1glT8lLhBFc1ulm-glXOs1_G4	2026-05-14 20:53:25.849+01	2026-05-07 20:53:25.851223+01
+60	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQwMTA3MCwiZXhwIjoxNzc5MDA1ODcwfQ.-GsG_XdUBebZedYq1TkM7d6AVdWKxZ9gpIASkcoa-GE	2026-05-17 09:17:50.835+01	2026-05-10 09:17:50.836666+01
+61	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQwMjAxMSwiZXhwIjoxNzc5MDA2ODExfQ.GrK-AIprgq3aKsWAXYcGob7mBsWTsO_Klcm6AmZtTOM	2026-05-17 09:33:31.212+01	2026-05-10 09:33:31.213955+01
+62	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODQwMjcyOSwiZXhwIjoxNzc5MDA3NTI5fQ.mEADogDTOWExAD04CUdb8u9zHyWBVjcKrpFpBi0bpc8	2026-05-17 09:45:29.87+01	2026-05-10 09:45:29.870555+01
+63	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQwMjc2NywiZXhwIjoxNzc5MDA3NTY3fQ.tdsG0QBR0y2XbFXpq8Kt-euN1B1zrGYPtJX6ShrbQaY	2026-05-17 09:46:07.829+01	2026-05-10 09:46:07.830441+01
+64	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc4NDAyODA5LCJleHAiOjE3NzkwMDc2MDl9.WoqqhIpxV2SWnowUL-loIFEGDIkCukNdQUA0Eph9WtE	2026-05-17 09:46:49.979+01	2026-05-10 09:46:49.979932+01
+65	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQwNTg2MiwiZXhwIjoxNzc5MDEwNjYyfQ.bJCaknHoWjJttPdVEKBouXS4DvX4zmT6xUShe_n57ls	2026-05-17 10:37:42.337+01	2026-05-10 10:37:42.339026+01
+66	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc4NDA2Mjk4LCJleHAiOjE3NzkwMTEwOTh9.MEs0Pk59YOnQwzSeWtNGyK3ulQB9s8qiqc8iy8hyTO8	2026-05-17 10:44:58.755+01	2026-05-10 10:44:58.757592+01
+67	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODQwNjQwMSwiZXhwIjoxNzc5MDExMjAxfQ.iky0qwXbdaFRQ0cQmHL7kjMmw-lX1LMDZvulZBa9_e4	2026-05-17 10:46:41.483+01	2026-05-10 10:46:41.485221+01
+68	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQwNjUxOSwiZXhwIjoxNzc5MDExMzE5fQ.YEc3h1jWcDJjjToG7wsd7zaDLCTn2yuAYwNOM-rVdVM	2026-05-17 10:48:39.414+01	2026-05-10 10:48:39.415178+01
+69	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQ1MzM1MywiZXhwIjoxNzc5MDU4MTUzfQ.F5x_bmyO0HTADd6yla6zwIUf_rDlLdyM0DkVKOv3YvI	2026-05-17 23:49:13.68+01	2026-05-10 23:49:13.681594+01
+70	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQ5NTIyOSwiZXhwIjoxNzc5MTAwMDI5fQ.dEu72aPd91KN-DXcGrQs7aaTRwLYJ1dFdRJvsKfhxEo	2026-05-18 11:27:09.584+01	2026-05-11 11:27:09.586075+01
+71	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc4NDk1Mzg5LCJleHAiOjE3NzkxMDAxODl9.RvVFrv2YXYbMnnDxXKZonhClmwysYLMTJ-VyGNWHwvk	2026-05-18 11:29:49.111+01	2026-05-11 11:29:49.112117+01
+72	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQ5NjMyMSwiZXhwIjoxNzc5MTAxMTIxfQ.bQ6gviAAAPouVDNytH3wbNaiDYL0ndJpNJJc8csizf8	2026-05-18 11:45:21.924+01	2026-05-11 11:45:21.925744+01
+73	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQ5NzI4NiwiZXhwIjoxNzc5MTAyMDg2fQ.be7eUsjuouXWtUNHfdwHrbsq3T43nKjFkWUVyxQ9S8I	2026-05-18 12:01:26.694+01	2026-05-11 12:01:26.695376+01
+74	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODQ5NzkyMSwiZXhwIjoxNzc5MTAyNzIxfQ.jcYQ13jwRObnE9kLynneO3NnVsmkxRqmvWe-tskIthI	2026-05-18 12:12:01.267+01	2026-05-11 12:12:01.268612+01
+75	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODQ5Nzk1NSwiZXhwIjoxNzc5MTAyNzU1fQ.9L4lhoFVYWQn-swcgvZAlr4qHJH3mhM5VnJET3B7JeU	2026-05-18 12:12:35.399+01	2026-05-11 12:12:35.400127+01
+76	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3MzEwNywiZXhwIjoxNzc5MTc3OTA3fQ.-KPCM7l1eHXDS_YAa9I7mkqjDNaNuv-spNRacOeoCr4	2026-05-19 09:05:07.12+01	2026-05-12 09:05:07.122445+01
+77	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3MzU2MSwiZXhwIjoxNzc5MTc4MzYxfQ.63reTik4olP_X0nPr7Zid8upCtp9v0vCfbyRLCJKqGk	2026-05-19 09:12:41.795+01	2026-05-12 09:12:41.796755+01
+78	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODU3MzU3NSwiZXhwIjoxNzc5MTc4Mzc1fQ.Vz7MqIyzs_m8hfnU4Lu-cjDnna0I5TuIdQMzZFdIr_8	2026-05-19 09:12:55.554+01	2026-05-12 09:12:55.555656+01
+79	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3MzY4OSwiZXhwIjoxNzc5MTc4NDg5fQ.mhDLIDmKRYtHjUDn7x9-BldbBskExzRI_Xzoe3qLblQ	2026-05-19 09:14:49.423+01	2026-05-12 09:14:49.424565+01
+80	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3NDIyOSwiZXhwIjoxNzc5MTc5MDI5fQ.5hc5-5a1y5cnWlpTeOyYqM6oJXT3vH9ZeptBsOrpF9k	2026-05-19 09:23:49.465+01	2026-05-12 09:23:49.467962+01
+81	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODU3NDI1MCwiZXhwIjoxNzc5MTc5MDUwfQ.2TDe0_bA4SphYNX4Eax5gixvRGRseIf2GTiBBB1m39g	2026-05-19 09:24:10.1+01	2026-05-12 09:24:10.102307+01
+82	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3NDI2MSwiZXhwIjoxNzc5MTc5MDYxfQ.Wx7DycwtEeJ_jPHrUzPOzpx8GB1dx95R5auIi9FViXY	2026-05-19 09:24:21.541+01	2026-05-12 09:24:21.543186+01
+83	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3NTI4OSwiZXhwIjoxNzc5MTgwMDg5fQ.nE0aE5fJdGZvFyh0uGM5Lyr0rgg9QzxP-zVKexUZtpQ	2026-05-19 09:41:29.233+01	2026-05-12 09:41:29.236068+01
+84	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3NjIxMCwiZXhwIjoxNzc5MTgxMDEwfQ.2AN7i3ZM4a_GQOD0-sVBnglWlMARWjvJStHjf6WGXTA	2026-05-19 09:56:50.661+01	2026-05-12 09:56:50.661956+01
+85	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODU3NzIzOSwiZXhwIjoxNzc5MTgyMDM5fQ.abs1aoIQOxs02nSIw0r8iQz36vtg09WAf2JRL76tWkw	2026-05-19 10:13:59.837+01	2026-05-12 10:13:59.837875+01
+86	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3ODIyNSwiZXhwIjoxNzc5MTgzMDI1fQ.XR4UrEL337WzNLPQg0LZxha7DZnM2dsUFFlwThW-vc0	2026-05-19 10:30:25.262+01	2026-05-12 10:30:25.263029+01
+87	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU3OTM4NiwiZXhwIjoxNzc5MTg0MTg2fQ.CHNRJO-ZmKmEK6NKR8cvumq7HwTWHkv_VKjCka2gCNU	2026-05-19 10:49:46.839+01	2026-05-12 10:49:46.840226+01
+88	17	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTc3ODU4MDExMCwiZXhwIjoxNzc5MTg0OTEwfQ.PLTvz34JttPQaUxKRQiZC0BadGXeSFUdCQhbOcfnfps	2026-05-19 11:01:50.059+01	2026-05-12 11:01:50.060325+01
+89	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU4MDE3MSwiZXhwIjoxNzc5MTg0OTcxfQ.yAaA9Yah-i19W7jXHsJ_xt9J94N0nAJDmjjMOi-EJ-o	2026-05-19 11:02:51.886+01	2026-05-12 11:02:51.887567+01
+90	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU4MDE5NSwiZXhwIjoxNzc5MTg0OTk1fQ.5KuRWcehVRIPWu9WStCrKs1-hdHpqtLtNw6gHFOLHLk	2026-05-19 11:03:15.018+01	2026-05-12 11:03:15.0198+01
+91	18	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTgsImlhdCI6MTc3ODU4MDIyOCwiZXhwIjoxNzc5MTg1MDI4fQ.pFTteTscnVKc1p9I5iwm3jLqOYxWfISPIRel7NiR98Y	2026-05-19 11:03:48.722+01	2026-05-12 11:03:48.723277+01
+92	15	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTc3ODU4MDM0NywiZXhwIjoxNzc5MTg1MTQ3fQ.oKino19G_XdOcF425sxiVuDLUAol6SEXwNaH8MRkgzc	2026-05-19 11:05:47.598+01	2026-05-12 11:05:47.60034+01
+\.
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.schema_migrations (id, filename, applied_at) FROM stdin;
+1	001_add_archived_columns.sql	2026-04-29 11:50:35.583079+01
+2	002_add_fk_constraints.sql	2026-04-29 11:51:02.836844+01
+3	003_add_audit_columns.sql	2026-04-29 11:51:02.906291+01
+4	004_add_db_constraints.sql	2026-04-29 11:51:26.538685+01
+5	005_create_refresh_tokens.sql	2026-04-29 11:51:26.555721+01
+6	006_create_password_reset_tokens.sql	2026-04-29 12:41:50.421247+01
+7	007_add_user_profile_columns.sql	2026-04-29 14:34:42.618237+01
+8	008_add_product_image.sql	2026-05-07 10:47:52.033155+01
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, email, password, role, created_at, first_name, last_name, phone) FROM stdin;
+1	admin@gmail.com	$2b$10$zrzqBJky5gV4wICuGDHp9O6GclhGm21GQyp2RTH067fEGwsSvcyJS	admin	2026-04-08 00:00:37.60772	\N	\N	\N
+8	ayalazreg3@gmail.com	$2b$10$G9rdMUjCJbMwNv/jIjRcWOafaAWuDpTtMmIGpgZgoVyaJxa1Di7q6	magasinier	2026-04-10 20:20:21.264183	\N	\N	\N
+9	mawounisidali44@gmail.com	$2b$10$6YvVvnutLr.pA0uFo1HnN.pSGUvJWzot0BWZLL8FX32UowEAf4fIK	magasinier	2026-04-11 10:57:05.93954	\N	\N	\N
+13	mazounihouda44@gmail.com	$2b$10$b1oQx3JNgar5gKIOEkYZ3uHWEVk4Hc1kg/NKEd3aU0tpTIYiQuh9u	responsable	2026-04-29 11:45:28.568894	\N	\N	\N
+14	test_mag@test.com	$2b$10$Qh9pQTbyIcHObSR0VMPZluwIYLSukWrOvdu/IoxlnW6QT9gcKDne2	magasinier	2026-04-29 11:58:41.519981	\N	\N	\N
+15	mazounilatifa44@gmail.com	$2b$10$rb2TXRvZFZfVp0BBe5UIa.rhWecBoJEJ6LYlk7EpL.fDlVS7iZ9CG	admin	2026-04-29 12:57:19.041004	\N	\N	\N
+16	nessrineroulami@gmail.com	$2b$10$9sO2PzPRBe9wCesnK8zpO.gy9k1DXnCYXkKLwdcUvWrcTXbEBzDP2	magasinier	2026-05-04 07:04:14.388088	nessrine	roulami 	0782183576
+17	tt88@com.com	$2b$10$455Sy1hpc4CFJt4iXG0EbeFyfimMjY4J/hP0K7u4omnP5xSbB0DYO	magasinier	2026-05-07 13:03:49.241535	yyy	yy	123556
+18	linamaz0_@gmail.com	$2b$10$GtjYTnTy6Oj76V9sde8d.Oyj9Bb8b6OSGqn/z8w83KyNz1IJTpuz6	responsable	2026-05-10 10:57:50.670932	lina	mazouni 	112234
+\.
+
+
+--
+-- Data for Name: vente_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.vente_details (id, id_vente, id_produit, quantite, prix) FROM stdin;
+\.
+
+
+--
+-- Data for Name: ventes; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.ventes (id_vente, date_vente, total, id_user, id_client) FROM stdin;
+1	2026-05-01 14:16:57.900933	200.00	15	\N
+2	2026-05-06 12:05:04.608382	1.00	15	\N
+\.
+
+
+--
+-- Name: alertes_stock_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.alertes_stock_id_seq', 1, false);
+
+
+--
+-- Name: clients_id_client_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.clients_id_client_seq', 7, true);
+
+
+--
+-- Name: facture_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.facture_details_id_seq', 35, true);
+
+
+--
+-- Name: factures_id_facture_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.factures_id_facture_seq', 35, true);
+
+
+--
+-- Name: fournisseurs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.fournisseurs_id_seq', 5, true);
+
+
+--
+-- Name: lots_id_lot_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.lots_id_lot_seq', 12, true);
+
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.messages_id_seq', 4, true);
+
+
+--
+-- Name: mouvements_id_mouvement_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.mouvements_id_mouvement_seq', 134, true);
+
+
+--
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.password_reset_tokens_id_seq', 12, true);
+
+
+--
+-- Name: produits_id_produit_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.produits_id_produit_seq', 54, true);
+
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.refresh_tokens_id_seq', 92, true);
+
+
+--
+-- Name: schema_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.schema_migrations_id_seq', 8, true);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 18, true);
+
+
+--
+-- Name: vente_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.vente_details_id_seq', 2, true);
+
+
+--
+-- Name: ventes_id_vente_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.ventes_id_vente_seq', 2, true);
+
+
+--
+-- Name: alertes_stock alertes_stock_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alertes_stock
+    ADD CONSTRAINT alertes_stock_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: clients clients_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_pkey PRIMARY KEY (id_client);
+
+
+--
+-- Name: facture_details facture_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details
+    ADD CONSTRAINT facture_details_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: factures factures_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.factures
+    ADD CONSTRAINT factures_pkey PRIMARY KEY (id_facture);
+
+
+--
+-- Name: fournisseurs fournisseurs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fournisseurs
+    ADD CONSTRAINT fournisseurs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lots lots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lots
+    ADD CONSTRAINT lots_pkey PRIMARY KEY (id_lot);
+
+
+--
+-- Name: messages messages_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT messages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mouvements mouvements_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT mouvements_pkey PRIMARY KEY (id_mouvement);
+
+
+--
+-- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: password_reset_tokens password_reset_tokens_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_token_key UNIQUE (token);
+
+
+--
+-- Name: produits produits_code_bar_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produits
+    ADD CONSTRAINT produits_code_bar_key UNIQUE (code_bar);
+
+
+--
+-- Name: produits produits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produits
+    ADD CONSTRAINT produits_pkey PRIMARY KEY (id_produit);
+
+
+--
+-- Name: refresh_tokens refresh_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refresh_tokens
+    ADD CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: refresh_tokens refresh_tokens_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refresh_tokens
+    ADD CONSTRAINT refresh_tokens_token_key UNIQUE (token);
+
+
+--
+-- Name: schema_migrations schema_migrations_filename_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.schema_migrations
+    ADD CONSTRAINT schema_migrations_filename_key UNIQUE (filename);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: produits uq_produits_code_bar; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produits
+    ADD CONSTRAINT uq_produits_code_bar UNIQUE (code_bar);
+
+
+--
+-- Name: users uq_users_email; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT uq_users_email UNIQUE (email);
+
+
+--
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: vente_details vente_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details
+    ADD CONSTRAINT vente_details_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ventes ventes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ventes
+    ADD CONSTRAINT ventes_pkey PRIMARY KEY (id_vente);
+
+
+--
+-- Name: idx_lots_expiration; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_lots_expiration ON public.lots USING btree (date_expiration);
+
+
+--
+-- Name: idx_lots_produit; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_lots_produit ON public.lots USING btree (id_produit);
+
+
+--
+-- Name: idx_prt_token; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_prt_token ON public.password_reset_tokens USING btree (token);
+
+
+--
+-- Name: idx_prt_user; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_prt_user ON public.password_reset_tokens USING btree (user_id);
+
+
+--
+-- Name: idx_refresh_tokens_token; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_refresh_tokens_token ON public.refresh_tokens USING btree (token);
+
+
+--
+-- Name: idx_refresh_tokens_user; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_refresh_tokens_user ON public.refresh_tokens USING btree (id_user);
+
+
+--
+-- Name: alertes_stock alertes_stock_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alertes_stock
+    ADD CONSTRAINT alertes_stock_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE CASCADE;
+
+
+--
+-- Name: facture_details facture_details_id_facture_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details
+    ADD CONSTRAINT facture_details_id_facture_fkey FOREIGN KEY (id_facture) REFERENCES public.factures(id_facture) ON DELETE CASCADE;
+
+
+--
+-- Name: facture_details facture_details_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details
+    ADD CONSTRAINT facture_details_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit);
+
+
+--
+-- Name: facture_details fk_fd_facture; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details
+    ADD CONSTRAINT fk_fd_facture FOREIGN KEY (id_facture) REFERENCES public.factures(id_facture) ON DELETE CASCADE;
+
+
+--
+-- Name: facture_details fk_fd_produit; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_details
+    ADD CONSTRAINT fk_fd_produit FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE RESTRICT;
+
+
+--
+-- Name: mouvements fk_mouvements_client; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT fk_mouvements_client FOREIGN KEY (id_client) REFERENCES public.clients(id_client) ON DELETE RESTRICT;
+
+
+--
+-- Name: mouvements fk_mouvements_fournisseur; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT fk_mouvements_fournisseur FOREIGN KEY (id_fournisseur) REFERENCES public.fournisseurs(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: mouvements fk_mouvements_produit; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT fk_mouvements_produit FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE RESTRICT;
+
+
+--
+-- Name: vente_details fk_vd_produit; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details
+    ADD CONSTRAINT fk_vd_produit FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE RESTRICT;
+
+
+--
+-- Name: vente_details fk_vd_vente; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details
+    ADD CONSTRAINT fk_vd_vente FOREIGN KEY (id_vente) REFERENCES public.ventes(id_vente) ON DELETE CASCADE;
+
+
+--
+-- Name: lots lots_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lots
+    ADD CONSTRAINT lots_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE CASCADE;
+
+
+--
+-- Name: mouvements mouvements_id_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT mouvements_id_client_fkey FOREIGN KEY (id_client) REFERENCES public.clients(id_client) ON DELETE SET NULL;
+
+
+--
+-- Name: mouvements mouvements_id_fournisseur_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT mouvements_id_fournisseur_fkey FOREIGN KEY (id_fournisseur) REFERENCES public.fournisseurs(id) ON DELETE SET NULL;
+
+
+--
+-- Name: mouvements mouvements_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT mouvements_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit) ON DELETE CASCADE;
+
+
+--
+-- Name: mouvements mouvements_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvements
+    ADD CONSTRAINT mouvements_id_user_fkey FOREIGN KEY (id_user) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: password_reset_tokens password_reset_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: refresh_tokens refresh_tokens_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refresh_tokens
+    ADD CONSTRAINT refresh_tokens_id_user_fkey FOREIGN KEY (id_user) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: vente_details vente_details_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details
+    ADD CONSTRAINT vente_details_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produits(id_produit);
+
+
+--
+-- Name: vente_details vente_details_id_vente_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vente_details
+    ADD CONSTRAINT vente_details_id_vente_fkey FOREIGN KEY (id_vente) REFERENCES public.ventes(id_vente) ON DELETE CASCADE;
+
+
+--
+-- Name: ventes ventes_id_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ventes
+    ADD CONSTRAINT ventes_id_client_fkey FOREIGN KEY (id_client) REFERENCES public.clients(id_client) ON DELETE SET NULL;
+
+
+--
+-- Name: ventes ventes_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ventes
+    ADD CONSTRAINT ventes_id_user_fkey FOREIGN KEY (id_user) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict lh1jClqXZHjIP1dw5jZWuvHGN5ffrFVJ18SFZgtLw7jUVSzt8FTLf60QXoTWSEk
+

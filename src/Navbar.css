@@ -1,54 +1,133 @@
 .navbar {
   position: fixed;
   top: 0;
-  left: 220px;
   right: 0;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 25px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
   z-index: 1000;
   background: linear-gradient(90deg, #3c096c, #7b2cbf);
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-.navbar .nav-logo {
-  font-size: 24px;
-  color: white;
-  font-weight: bold;
-}
-
-.navbar .mode-toggle button {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.2);
-  color: white;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.navbar .mode-toggle button:hover {
-  background: rgba(255,255,255,0.4);
-}
-
 
 body.dark-mode .navbar {
   background: linear-gradient(90deg, #1e1e2f, #3a0e6e);
 }
+
+/* Left side */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-logo {
+  font-size: 20px;
+  color: white;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+/* Hamburger toggle */
+.nav-hamburger {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+.nav-hamburger:hover { background: rgba(255,255,255,0.24); }
+
+/* Right side */
 .nav-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
-.logout button {
-  background: #7b2cbf; /* بنفسجي */
-  color: white;
-  border: none;
-  padding: 6px 12px;
+/* Shared nav button */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 5px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+.nav-btn:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.4);
+}
+
+/* Logout gets a subtle red tint on hover */
+.nav-btn-logout:hover {
+  background: rgba(239,68,68,0.25);
+  border-color: rgba(239,68,68,0.5);
+}
+
+/* User info block */
+.nav-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+}
+
+.nav-user-email {
+  font-weight: 500;
+  opacity: 0.85;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Role badge */
+.nav-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav-role-admin {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nav-role-magasinier {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nav-role-responsable {
+  background: #dbeafe;
+  color: #1e40af;
 }

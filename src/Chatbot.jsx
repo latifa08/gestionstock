@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "👋 مرحبا! أنا AI تاع المخزون" }
+    { sender: "bot", text: "ai" }
   ]);
 
   const [input, setInput] = useState("");
@@ -35,10 +35,12 @@ export default function Chatbot() {
     inputRef.current?.focus();
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/chat", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ message: userText })
       });
@@ -49,7 +51,7 @@ export default function Chatbot() {
         ...prev,
         {
           sender: "bot",
-          text: data?.message || "🤖 ماكانش رد من السيرفر"
+          text: data?.reply || "🤖 ماكانش رد من السيرفر"
         }
       ]);
 

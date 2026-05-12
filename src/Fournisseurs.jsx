@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "./api";
 import "./Fournisseurs.css";
 
 export default function Fournisseurs() {
-  const apiUrl = "http://localhost:5000/fournisseurs";
+  const apiUrl = "/fournisseurs";
 
   const [list, setList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,6 +17,7 @@ export default function Fournisseurs() {
     email: "",
     adresse: "",
   });
+  const [modalError, setModalError] = useState("");
 
   useEffect(() => {
     fetchFournisseurs();
@@ -24,7 +25,7 @@ export default function Fournisseurs() {
 
   const fetchFournisseurs = async () => {
     try {
-      const res = await axios.get(apiUrl);
+      const res = await api.get(apiUrl);
       setList(res.data);
     } catch (err) {
       console.error(err);
@@ -37,45 +38,37 @@ export default function Fournisseurs() {
   };
 
   const handleSave = async () => {
-    if (!form.nom || !form.societe || !form.telephone) {
-      return alert("Nom, Société et Téléphone sont obligatoires !");
+    setModalError("");
+    if (!form.nom.trim()) {
+      return setModalError("Le nom est obligatoire.");
     }
 
     try {
       if (editId !== null) {
-        await axios.put(`${apiUrl}/${editId}`, form);
-
-        setList((prev) =>
-          prev.map((f) =>
-            f.id === editId ? { ...form, id: editId } : f
-          )
-        );
-
+        await api.put(`${apiUrl}/${editId}`, form);
+        setList((prev) => prev.map((f) => f.id === editId ? { ...form, id: editId } : f));
         setEditId(null);
       } else {
-        const res = await axios.post(apiUrl, form);
-
+        const res = await api.post(apiUrl, form);
         setList([...list, { ...form, id: res.data.id }]);
       }
 
-      setForm({
-        nom: "",
-        societe: "",
-        telephone: "",
-        email: "",
-        adresse: "",
-      });
-
+      setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
       setShowModal(false);
     } catch (err) {
-      console.error(err);
-      alert("Erreur serveur");
+      const data = err.response?.data;
+      if (data?.errors?.length) {
+        setModalError(data.errors.map(e => `${e.field}: ${e.message}`).join(" | "));
+      } else {
+        setModalError(data?.message || err.message || "Erreur serveur");
+      }
     }
   };
 
   // ✅ FIX فقط: استعمل id بدل index
   const handleEdit = (id) => {
     const item = list.find((f) => f.id === id);
+    setModalError("");
     setForm(item);
     setEditId(id);
     setShowModal(true);
@@ -86,7 +79,7 @@ export default function Fournisseurs() {
       return;
 
     try {
-      await axios.delete(`${apiUrl}/${id}`);
+      await api.delete(`${apiUrl}/${id}`);
       setList(list.filter((f) => f.id !== id));
     } catch (err) {
       console.error(err);
@@ -106,18 +99,13 @@ export default function Fournisseurs() {
         <h2>Gestion des Fournisseurs</h2>
         <button
           onClick={() => {
-            setForm({
-              nom: "",
-              societe: "",
-              telephone: "",
-              email: "",
-              adresse: "",
-            });
+            setForm({ nom: "", societe: "", telephone: "", email: "", adresse: "" });
             setEditId(null);
+            setModalError("");
             setShowModal(true);
           }}
         >
-          + Add Fournisseur
+          + Ajouter fournisseur
         </button>
       </div>
 
@@ -178,18 +166,42 @@ export default function Fournisseurs() {
       {showModal && (
         <div className="overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{editId !== null ? "Edit Fournisseur" : "Add Fournisseur"}</h3>
+            <h3>{editId !== null ? "Modifier le fournisseur" : "Ajouter un fournisseur"}</h3>
 
-            <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} />
-            <input name="societe" placeholder="Société" value={form.societe} onChange={handleChange} />
-            <input name="telephone" placeholder="Téléphone" value={form.telephone} onChange={handleChange} />
-            <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-            <input name="adresse" placeholder="Adresse" value={form.adresse} onChange={handleChange} />
+            <div className="form-field">
+              <label className="field-label">Nom *</label>
+              <input name="nom" placeholder="Nom du fournisseur" value={form.nom} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Société</label>
+              <input name="societe" placeholder="Nom de la société" value={form.societe} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Téléphone</label>
+              <input name="telephone" placeholder="Ex: 0555 123 456" value={form.telephone} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Email</label>
+              <input name="email" placeholder="exemple@mail.com" value={form.email} onChange={handleChange} />
+            </div>
+            <div className="form-field">
+              <label className="field-label">Adresse</label>
+              <input name="adresse" placeholder="Adresse complète" value={form.adresse} onChange={handleChange} />
+            </div>
+
+            {modalError && (
+              <div style={{
+                background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
+                padding: "10px 14px", color: "#b91c1c", fontSize: 13
+              }}>
+                {modalError}
+              </div>
+            )}
 
             <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="cancel" onClick={() => setShowModal(false)}>Annuler</button>
               <button className="save" onClick={handleSave}>
-                {editId !== null ? "Update" : "Save"}
+                {editId !== null ? "Modifier" : "Enregistrer"}
               </button>
             </div>
           </div>

@@ -200,3 +200,28 @@ tbody tr:hover td {
 .modal-actions button.cancel:hover {
   background: #b91c1c;
 }
+
+.modal-actions button {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+/* Form fields with labels */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5b21b6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

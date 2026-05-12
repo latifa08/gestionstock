@@ -1,0 +1,1 @@
+ALTER TABLE produits ADD COLUMN IF NOT EXISTS date_expiration DATE NULL;

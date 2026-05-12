@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 import OverviewCards from "./OverviewCards";
 import TopStores from "./TopStores";
 
@@ -38,15 +38,11 @@ export default function Dashboard() {
         setError(null);
 
         // ================= OVERVIEW =================
-        const resOverview = await axios.get(
-          "http://localhost:5000/dashboard/overview"
-        );
+        const resOverview = await api.get("/dashboard/overview");
         setOverview(resOverview.data || {});
 
         // ================= MOUVEMENTS =================
-        const resMouvements = await axios.get(
-          "http://localhost:5000/dashboard/mouvements"
-        );
+        const resMouvements = await api.get("/dashboard/mouvements");
 
         const mouv = Array.isArray(resMouvements.data)
           ? resMouvements.data
@@ -123,9 +119,7 @@ export default function Dashboard() {
         );
 
         // ================= PIE =================
-        const resProducts = await axios.get(
-          "http://localhost:5000/dashboard/products"
-        );
+        const resProducts = await api.get("/dashboard/products");
 
         const products = Array.isArray(resProducts.data)
           ? resProducts.data
